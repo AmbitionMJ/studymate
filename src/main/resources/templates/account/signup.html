@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>회원가입 페이지</title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- Animate.css -->
+    <link th:href="@{/vendors/animate.css/animate.min.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.min.css}" rel="stylesheet">
+
+</head>
+
+<body class="login">
+<div>
+    <a class="hiddenanchor" id="signup"></a>
+    <a class="hiddenanchor" id="signin"></a>
+
+    <div class="login_wrapper">
+        <div class="animate form login_form">
+            <section class="login_content">
+                <form th:action="@{/signup}" method="post" modelAttribute="signupDto">
+                    <h1><a th:href="@{/}">Home</a></h1>
+
+                    <div>
+                        <i class="fa fa-info-circle" aria-hidden="true" style="color:#0b97c4 ">실제 사용하는 메일을 적어주세요.</i>
+                        <br>
+                        <span th:text="${valid_email}"></span>
+                        <input type="email" class="form-control" th:value="${signupDto.email}" placeholder="이메일" name="email"
+                               id="email"/>
+                    </div>
+
+                    <div>
+
+                        <span th:text="${valid_nickname}"></span>
+                        <input type="text" class="form-control" th:value="${signupDto.nickname}" placeholder="닉네임" name="nickname"
+                               required minlength="2" maxlength="8"
+                               id="nickname"/>
+                    </div>
+                    <div>
+                        <span th:text="${valid_password}"></span>
+                        <input type="password" class="form-control" th:value="${signupDto.password}" placeholder="비밀번호"
+                               required minlength="8" maxlength="20" name="password" id="password"/>
+
+                        <div class="clearfix"></div>
+                        <button class="btn btn-info bi bi-arrow-return-left" type="submit">
+                            가입하기
+                        </button>
+                    </div>
+
+                    <div class="separator">
+                        <p class="change_link">이미 계정이 있으신가요?
+                            <a th:href="@{/login}" class="to_register"> 로그인 </a>
+                        </p>
+
+                        <div class="clearfix"></div>
+                        <br/>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
