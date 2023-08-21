@@ -1,26 +1,33 @@
 package com.example.weekdays.controller;
 
 
+import com.example.weekdays.component.validator.CheckSignupValidator;
 import com.example.weekdays.service.AccountService;
 import com.example.weekdays.dto.SignupDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import java.util.Map;
 
 @Controller
-@Transactional
 @AllArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
+    private final CheckSignupValidator checkSignupValidator;
 
+    @InitBinder("signupDto") //메서드가 어떤 객체에 대한 데이터 바인딩 및 유효성 검사를 처리할지 지정
+    public void initBinder(WebDataBinder webDataBinder){ //이 메서드는 데이터 바인더를 커스터마이징 하는 역할입니다.
+        webDataBinder.addValidators(checkSignupValidator); //checkSignupValidator 객체를 데이터 바인더에 추가합니다.
+
+    }
 
     @GetMapping("/")
     public String main() {

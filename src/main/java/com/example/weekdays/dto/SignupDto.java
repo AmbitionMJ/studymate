@@ -1,5 +1,6 @@
 package com.example.weekdays.dto;
 
+import com.example.weekdays.domain.entity.Account;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -24,4 +25,21 @@ public class SignupDto { //회원가입 시 이메일, 닉네임, 비밀번호, 
 
     private String role;
 
+
+
+
+
+    public Account toEntity(){  //dto를 entity화 합니다.
+        return Account.builder()
+                .id(id)
+                .email(email)
+                .nickname(nickname)
+                .password(password)
+                .role(role)
+                .build();
+    }
+
+
+
 }
+

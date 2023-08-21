@@ -4,6 +4,7 @@ import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -17,6 +18,8 @@ import java.util.Map;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     //회원가입 처리 하는 메서드, 비밀번호 암호화
     public Account accountSave(@Valid SignupDto signupDto) {
@@ -24,7 +27,7 @@ public class AccountService {
         Account account = Account.builder()
                 .email(signupDto.getEmail())
                 .nickname(signupDto.getNickname())
-                .password(signupDto.getPassword())
+                .password(passwordEncoder.encode(signupDto.getPassword())) //비밀번호 암호화
                 .role(signupDto.getRole()).build();
         return accountRepository.save(account);
 
