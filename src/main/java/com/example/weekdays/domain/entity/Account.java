@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -59,4 +60,10 @@ public class Account {
         this.joinedAt = joinedAt;
 
     }
+
+    public void generateEmailCheckToken(){
+        this.emailCheckToken = UUID.randomUUID().toString();
+
+    }
+
 }

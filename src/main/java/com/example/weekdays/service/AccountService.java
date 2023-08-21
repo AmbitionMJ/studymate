@@ -4,6 +4,8 @@ import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -19,6 +21,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender javaMailSender;
 
 
     //회원가입 처리 하는 메서드, 비밀번호 암호화
@@ -29,6 +32,16 @@ public class AccountService {
                 .nickname(signupDto.getNickname())
                 .password(passwordEncoder.encode(signupDto.getPassword())) //비밀번호 암호화
                 .role(signupDto.getRole()).build();
+
+        Account newAccount = accountRepository.save(account);
+
+        newAccount.generateEmailCheckToken();
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setSubject("회원 가입 인증");
+        mailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken() + "&email="+newAccount.getEmail());
+
+        javaMailSender.send(mailMessage);
+
         return accountRepository.save(account);
 
 
