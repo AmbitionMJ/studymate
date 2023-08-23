@@ -35,7 +35,7 @@
                     <h1><a th:href="@{/}">Home</a></h1>
 
                     <div>
-                        <i class="fa fa-info-circle" aria-hidden="true" style="color:#0b97c4 ">실제 사용하는 메일을 적어주세요.</i>
+                        <i class="fa fa-info-circle" style="color:#0b97c4 ">실제 사용하는 메일을 적어주세요.</i>
                         <br>
                         <span th:text="${valid_email}"></span>
                         <input type="email" class="form-control" th:value="${signupDto.email}" placeholder="이메일" name="email"
@@ -55,6 +55,7 @@
                                required minlength="8" maxlength="20" name="password" id="password"/>
 
                         <div class="clearfix"></div>
+                        <input type="hidden" th:name="role" th:value="MEMBER">
                         <button class="btn btn-info bi bi-arrow-return-left" type="submit">
                             가입하기
                         </button>

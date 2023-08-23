@@ -9,7 +9,6 @@ import javax.validation.constraints.Pattern;
 @Data
 public class SignupDto { //회원가입 시 이메일, 닉네임, 비밀번호, 권한 전송을 위한 객체
 
-    private Long id;
 
     @NotBlank(message = "필수 입력 값 입니다.")
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "이메일 형식이 올바르지 않습니다.")
@@ -26,19 +25,14 @@ public class SignupDto { //회원가입 시 이메일, 닉네임, 비밀번호, 
     private String role;
 
 
-
-
-
     public Account toEntity(){  //dto를 entity화 합니다.
         return Account.builder()
-                .id(id)
                 .email(email)
                 .nickname(nickname)
                 .password(password)
                 .role(role)
                 .build();
     }
-
 
 
 }

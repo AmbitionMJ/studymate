@@ -54,16 +54,27 @@ public class Account {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
-        this.emailVerified = true;
         this.emailCheckToken = emailCheckToken;
-        this.role = role;
+        this.role =role;
         this.joinedAt = joinedAt;
 
     }
 
-    public void generateEmailCheckToken(){
+    public void generateEmailCheckToken(){ //토큰 발행
         this.emailCheckToken = UUID.randomUUID().toString();
 
     }
+
+    public void completeSignUp() { //이메일인증 성공 여부, 시간
+        this.emailVerified = true;
+        this.joinedAt = LocalDateTime.now();
+
+    }
+
+    public boolean isValidToken(String token) { // 토큰 비교
+        return this.emailCheckToken.equals(token);
+
+    }
+
 
 }
