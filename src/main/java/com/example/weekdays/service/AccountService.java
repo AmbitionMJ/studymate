@@ -4,7 +4,6 @@ import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,8 +36,6 @@ public class AccountService {
 
 
         return accountRepository.save(account);
-
-
     }
 
 
@@ -59,7 +56,6 @@ public class AccountService {
         newAccount.generateEmailCheckToken(); //newAccount 객체에 대해 이메일 확인을 위한 토큰을 생성합니다.
         sendSignUpConfirmEmail(newAccount); //이메일을 보냅니다.
 
-
     }
 
     public void sendSignUpConfirmEmail(Account newAccount) { //회원가입 인증 이메일을 생성하고 전송하는 메서드
@@ -71,21 +67,30 @@ public class AccountService {
         javaMailSender.send(mailMessage); //메일 전송
     }
 
-    public void completeSignUp(Account account) { //이메일인증 성공 여부, 시간
-        account.completeSignUp();
-    }
 
-
-    public Account findByEmail(String email){ // db에서 email을 검색
+    public Account findByEmail(String email) { // db에서 email을 검색
         //controller에서 repository에 대한 직접적인 접근을 지양하기 위해 만들었습니다.
         return accountRepository.findByEmail(email);
 
     }
-    public long count(){ //db에 저장된 모든 사용자 계정의 수를 세는 역할
-        ////controller에서 repository에 대한 직접적인 접근을 지양하기 위해 만들었습니다.
-        return accountRepository.count();
 
+
+    public String checkEmailToken(String token, String email) { //이메일 주소와 토큰을 이용하여 회원가입 인증을 처리합니다.
+
+        Account account = accountRepository.findByEmail(email); //주어진 이메일 주소로 repository에서 해당 이메일 주소와 일치하는 계정을 검색합니다.
+        if (account == null) { //검색된 계정이 없으면
+            return "wrong.email"; //wrong.email 문자열을 반환
+
+        }
+        if (!account.isValidToken(token)) { //검색된 계정이 존재하면 토큰 유효성을 검사하고 토큰이 유효하지 않으면 wrong.token 문자열을 반환
+            return "wrong.token";
+        }
+        account.completeSignUp(); //email과 token 값을 만족하면 인증여부를 true로 바꾸고 가입완료한 시간을 업데이트 합니다.
+        accountRepository.save(account);
+
+        return account.getNickname();//가입이 완료된 계정의 닉네임을 반환합니다.
     }
+
 }
 
 
