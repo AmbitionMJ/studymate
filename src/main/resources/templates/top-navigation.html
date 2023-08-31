@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- top navigation -->
+<div class="top_nav">
+    <div class="nav_menu">
+        <div class="alert alert-dark"  role="alert" th:if="${account != null && !account.emailVerified}">
+           <a th:href="@{/check-email}">이메일 인증</a>이 필요합니다. 가입을 완료하세요.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span> <!-- html 엔티티 참고-->
+            </button>
+        </div>
+        <div class="nav toggle">
+            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+        </div>
+        <nav class="nav navbar-nav">
+            <ul class=" navbar-right">
+                <!-- 로그인 전-->
+                <li sec:authorize="isAnonymous()" class="nav-item dropdown open" style="padding-left: 15px;">
+                    <a href="javascript:;"  class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
+                        <img th:src="@{/images/user.png}" alt="">게스트
+                    </a>
+                    <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item"  th:href="@{/signup}"> <i class="fa fa-user pull-right " ></i>회원가입</a>
+                        <a class="dropdown-item"  th:href="@{/login}"><i class="fa fa-sign-in pull-right"></i> 로그인</a>
+                    </div>
+                </li>
+
+                <!-- 로그인 후-->
+                <li sec:authorize="isAuthenticated()" class="nav-item dropdown open" style="padding-left: 15px;">
+                    <a  th:href="@{/notifications}" ><i class="fa fa-bell" aria-hidden="true" style="color: #2A3F54;" ></i></a>&nbsp;&nbsp;
+                    <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown2" data-toggle="dropdown" aria-expanded="false">
+                        <svg th:if="${#strings.isEmpty(account?.profileImage)}" th:data-jdenticon-value="${#authentication.name}"
+                             width="24" height="24" class="rounded border bg-light"></svg>
+                        <img th:if="${!#strings.isEmpty(account?.profileImage)}" th:src="${account.profileImage}"
+                             width="24" height="24" class="rounded border bg-light"/>
+
+                        <span th:text="${account.nickname}"> </span> 님
+                    </a>
+                    <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item"  th:href="@{'/member/profile/' + ${account.nickname}}"> <i class="fa fa-user pull-right " ></i>내정보</a>
+                        <a class="dropdown-item"  th:href="@{/member/logout}"><i class="fa fa-sign-out pull-right"></i>로그아웃</a>
+                    </div>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- /top navigation -->
+
+<!-- jdenticon -->
+<script th:src="@{/node_modules/jdenticon/dist/jdenticon.min.js}"></script>
+
+<script>
+
+</script>
+</body>
+</html>
