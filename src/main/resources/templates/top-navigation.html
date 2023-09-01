@@ -10,7 +10,7 @@
 <!-- top navigation -->
 <div class="top_nav">
     <div class="nav_menu">
-        <div class="alert alert-dark"  role="alert" th:if="${account != null && !account.emailVerified}">
+        <div class="alert alert-dark"  role="alert" th:if="${userAccount != null && !userAccount.account.emailVerified}">
            <a th:href="@{/check-email}">이메일 인증</a>이 필요합니다. 가입을 완료하세요.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span> <!-- html 엔티티 참고-->
@@ -36,16 +36,16 @@
                 <li sec:authorize="isAuthenticated()" class="nav-item dropdown open" style="padding-left: 15px;">
                     <a  th:href="@{/notifications}" ><i class="fa fa-bell" aria-hidden="true" style="color: #2A3F54;" ></i></a>&nbsp;&nbsp;
                     <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown2" data-toggle="dropdown" aria-expanded="false">
-                        <svg th:if="${#strings.isEmpty(account?.profileImage)}" th:data-jdenticon-value="${#authentication.name}"
+                        <svg th:if="${#strings.isEmpty(userAccount?.account.profileImage)}" th:data-jdenticon-value="${#authentication.name}"
                              width="24" height="24" class="rounded border bg-light"></svg>
-                        <img th:if="${!#strings.isEmpty(account?.profileImage)}" th:src="${account.profileImage}"
+                        <img th:if="${!#strings.isEmpty(userAccount?.account.profileImage)}" th:src="${userAccount?.account.profileImage}"
                              width="24" height="24" class="rounded border bg-light"/>
 
-                        <span th:text="${account.nickname}"> </span> 님
+                        <span th:text="${userAccount.username}"> </span> 님
                     </a>
                     <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item"  th:href="@{'/member/profile/' + ${account.nickname}}"> <i class="fa fa-user pull-right " ></i>내정보</a>
-                        <a class="dropdown-item"  th:href="@{/member/logout}"><i class="fa fa-sign-out pull-right"></i>로그아웃</a>
+                        <a class="dropdown-item"  th:href="@{'/profile/' + ${userAccount.username}}"> <i class="fa fa-user pull-right " ></i>내정보</a>
+                        <a class="dropdown-item"  th:href="@{/logout}"><i class="fa fa-sign-out pull-right"></i>로그아웃</a>
                     </div>
                 </li>
 
