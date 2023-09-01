@@ -1,11 +1,16 @@
 package com.example.weekdays.service;
 
+import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +19,13 @@ import org.springframework.validation.FieldError;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AccountService {
+public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -87,10 +93,31 @@ public class AccountService {
         }
         account.completeSignUp(); //email과 token 값을 만족하면 인증여부를 true로 바꾸고 가입완료한 시간을 업데이트 합니다.
         accountRepository.save(account);
-
         return account.getNickname();//가입이 완료된 계정의 닉네임을 반환합니다.
     }
 
+
+
+    //spring security 로그인 필수로 구현해야하는 메소드
+    //loadUserByUsername함수에서 id로 DB조회
+    //찾을 수 없으면 UsernameNotFoundException을 Throw 합니다.
+    @Transactional(readOnly = true) //데이터를 읽어오는 용도이기 때문에 readOnly를 주었고, 그에 따라 성능에 유리
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        Account account = accountRepository.findByEmail(username);
+        if(account.getEmail() == null) {
+            throw new UsernameNotFoundException(username); //username(email)이 잘못됐다고 예외를 던져준다.
+        }
+        if(account.getPassword() == null) {
+            throw new BadCredentialsException(username); //비밀번호 틀렸을 시
+
+        }
+
+        return new UserAccount(account);
+        //DB에 들어있는 email을 username으로 취급해서 유저를 읽어옵니다.
+        //인증 처리가 되면 authentication이라는 객체를 만들어서 securityContextHolder에 넣어줍니다.
+
+    }
+
 }
-
-

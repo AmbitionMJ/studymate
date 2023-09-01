@@ -1,11 +1,17 @@
 package com.example.weekdays.controller;
 
 
+import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckSignupValidator;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.service.AccountService;
 import com.example.weekdays.dto.SignupDto;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -23,6 +29,7 @@ public class AccountController {
 
     private final AccountService accountService;
     private final CheckSignupValidator checkSignupValidator;
+    private final AuthenticationManager authenticationManager;
 
 
     @InitBinder("signupDto") //메서드가 어떤 객체에 대한 데이터 바인딩 및 유효성 검사를 처리할지 지정
@@ -31,11 +38,6 @@ public class AccountController {
 
     }
 
-    @GetMapping("/")
-    public String main() {
-        return "index";
-
-    }
 
     @GetMapping("/signup") //회원가입 페이지
     public String signUpForm(Model model, SignupDto signupDto) {
@@ -43,8 +45,22 @@ public class AccountController {
 
     }
 
+    @GetMapping("/login") //로그인 페이지
+    public String loginForm(){
+        return "account/login";
+
+    }
+
+    @PostMapping("/login")
+    public String loginError(Model model) { //로그인 처리
+        model.addAttribute("loginErrorMsg");
+        return "account/login";
+
+    }
+
+
     @PostMapping("/signup") //회원가입 처리
-    public String signUpSubmit(@Valid SignupDto signupDto, Errors errors, Model model) {
+    public String signUpSubmit(@Valid SignupDto signupDto, Errors errors, Model model ) {
 
         if (errors.hasErrors()) { //에러가 있으면 입력 데이터를 유지하고 폼을 다시 보여줍니다. Spring MVC 자체 처리
             Map<String, String> validatorResult = accountService.validateHandling(errors); //유효성 통과 못한 필드와 메시지를 핸들링 합니다.
@@ -55,8 +71,28 @@ public class AccountController {
 
             return "account/signup";
         }
+
         accountService.processNewAccount(signupDto);
+
+        authenticateAndLogin(signupDto.getEmail(), signupDto.getPassword());
+
+
+
         return "redirect:/";
+    }
+
+
+    private void authenticateAndLogin(String email, String password){ //회원 가입 후 자동로그인을 위한 코드
+        //사용자 인증을 위한 토큰 생성
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+
+        //AuthenticationManager를 사용하여 사용자 인증 수행
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+        //SecurityContext에 인증 정보 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
     }
 
 
@@ -64,7 +100,7 @@ public class AccountController {
     public String checkEmailToken(String token, String email, Model model) {
 
         String verification = accountService.checkEmailToken(token, email); //메서드를 호출하여 이메일 확인 토큰을 검증하고 결과를 문자열로 반환
-        if ("wrong.email".equals(verification)) { //
+        if ("wrong.email".equals(verification)) {
             model.addAttribute("error", "잘못된 이메일입니다.");
             return "account/checked-email";
 

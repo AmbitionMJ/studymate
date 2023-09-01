@@ -1,6 +1,7 @@
 package com.example.weekdays.domain.entity;
 
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity(name = "account")
-public class Account {
+public class Account extends Time{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //DB AI 설정
     private Long id;
