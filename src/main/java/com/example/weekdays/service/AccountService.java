@@ -19,7 +19,6 @@ import org.springframework.validation.FieldError;
 
 import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -119,5 +118,15 @@ public class AccountService implements UserDetailsService {
         //인증 처리가 되면 authentication이라는 객체를 만들어서 securityContextHolder에 넣어줍니다.
 
     }
+
+    public void generatedAndResendCheckToken(UserAccount userAccount){ //이메일 재전송 하기 위해서 사용합니다.
+        Account account =  userAccount.getAccount();
+        account.generateEmailCheckToken(); //토큰을 발행하고 발행한 시간을 update
+        sendSignUpConfirmEmail(account); // 메일 전송
+
+        accountRepository.save(account);
+
+    }
+
 
 }

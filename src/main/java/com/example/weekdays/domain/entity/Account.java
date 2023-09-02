@@ -61,8 +61,10 @@ public class Account extends Time{
 
     }
 
+
     public void generateEmailCheckToken(){ //토큰 발행
         this.emailCheckToken = UUID.randomUUID().toString();
+        this.emailCheckTokenGeneratedAt =LocalDateTime.now();
 
     }
 
@@ -75,6 +77,9 @@ public class Account extends Time{
     public boolean isValidToken(String token) { // 토큰 비교
         return this.emailCheckToken.equals(token);
 
+    }
+    public boolean canSendConfirmEmail() { //시간 텀을 정해줍니다.
+        return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(3));
     }
 
 

@@ -3,10 +3,10 @@ package com.example.weekdays.controller;
 
 import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckSignupValidator;
-import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.service.AccountService;
 import com.example.weekdays.dto.SignupDto;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.Banner;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -115,6 +116,32 @@ public class AccountController {
 
         return "account/checked-email";
     }
+
+
+    @GetMapping("/check-email") //메일 재전송 페이지
+    public String checkEmail(@AuthenticationPrincipal UserAccount userAccount, Model model){
+
+        model.addAttribute("email",userAccount.getAccount().getEmail());
+
+        return "account/check-email";
+
+    }
+
+    @PostMapping("/check-email") //메일 재전송 처리
+    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount,Model model) throws MessagingException {
+        if(!userAccount.getAccount().canSendConfirmEmail()){ //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
+            model.addAttribute("error","인증 이메일은 3분에 한번만 전송할 수 있습니다.");
+            model.addAttribute("email",userAccount.getAccount().getEmail());
+
+            return "account/check-email";
+
+        }
+        accountService.generatedAndResendCheckToken(userAccount);
+
+        return "redirect:/"; //화면 리프레시 할때마다 메일을 계속 보낼 수 있으니 리다이렉트로 설정
+
+    }
+
 
 }
 

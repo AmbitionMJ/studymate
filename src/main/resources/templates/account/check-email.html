@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>메일인증 페이지</title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- Animate.css -->
+    <link th:href="@{/vendors/animate.css/animate.min.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.min.css}" rel="stylesheet">
+</head>
+
+<body class="login">
+<div>
+    <a class="hiddenanchor" id="signup"></a>
+    <a class="hiddenanchor" id="signin"></a>
+
+    <div class="login_wrapper">
+        <div class="animate form login_form">
+            <section class="login_content">
+                <form  th:action="@{/check-email}" method="post" >
+                    <h1><a th:href="@{/}">Home</a></h1>
+                    <table style="width: 380px" align="center">
+                        <tr>
+                            <td>
+                                <div class="py-5 text-center" th:if="${error != null}">
+                                    <h1>이메일 인증을 완료하세요.</h1>
+                                    <div  class="alert alert-danger" role="alert" th:text="${error}"></div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                    <div>
+                        <p class="form-control"
+                           style="width:100%;float:left" th:text="${email}"></p>
+
+                        <button type="submit" class="btn btn-outline-info" >인증 이메일
+                            보내기</button>
+                    </div></form>
+            </section>
+        </div>
+    </div>
+</div>
+</div>
+
+
+</body>
+</html>
