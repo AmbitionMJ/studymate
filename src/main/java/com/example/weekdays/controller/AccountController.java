@@ -3,6 +3,8 @@ package com.example.weekdays.controller;
 
 import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckSignupValidator;
+import com.example.weekdays.domain.entity.Account;
+import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.service.AccountService;
 import com.example.weekdays.dto.SignupDto;
 import lombok.AllArgsConstructor;
@@ -13,14 +15,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -31,7 +35,6 @@ public class AccountController {
     private final AccountService accountService;
     private final CheckSignupValidator checkSignupValidator;
     private final AuthenticationManager authenticationManager;
-
 
     @InitBinder("signupDto") //메서드가 어떤 객체에 대한 데이터 바인딩 및 유효성 검사를 처리할지 지정
     public void initBinder(WebDataBinder webDataBinder) { //이 메서드는 데이터 바인더를 커스터마이징 하는 역할입니다.
@@ -60,6 +63,7 @@ public class AccountController {
     }
 
 
+
     @PostMapping("/signup") //회원가입 처리
     public String signUpSubmit(@Valid SignupDto signupDto, Errors errors, Model model ) {
 
@@ -73,14 +77,13 @@ public class AccountController {
             return "account/signup";
         }
 
+
+
         accountService.processNewAccount(signupDto);
-
-        authenticateAndLogin(signupDto.getEmail(), signupDto.getPassword());
-
-
-
+        authenticateAndLogin(signupDto.getEmail(),signupDto.getPassword());
         return "redirect:/";
     }
+
 
 
     private void authenticateAndLogin(String email, String password){ //회원 가입 후 자동로그인을 위한 코드
@@ -111,7 +114,6 @@ public class AccountController {
 
         } else {
             model.addAttribute("nickname", verification);
-
         }
 
         return "account/checked-email";
@@ -128,7 +130,7 @@ public class AccountController {
     }
 
     @PostMapping("/check-email") //메일 재전송 처리
-    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount,Model model) throws MessagingException {
+    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount,Model model)  {
         if(!userAccount.getAccount().canSendConfirmEmail()){ //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
             model.addAttribute("error","인증 이메일은 3분에 한번만 전송할 수 있습니다.");
             model.addAttribute("email",userAccount.getAccount().getEmail());
@@ -136,11 +138,54 @@ public class AccountController {
             return "account/check-email";
 
         }
-        accountService.generatedAndResendCheckToken(userAccount);
+        accountService.updateTokenAndResendMail(userAccount);
 
         return "redirect:/"; //화면 리프레시 할때마다 메일을 계속 보낼 수 있으니 리다이렉트로 설정
 
     }
+
+
+    @GetMapping("/profile/{nickname}") //프로필 페이지
+    public String profileForm(@PathVariable String nickname, Model model, @AuthenticationPrincipal UserAccount userAccount){
+
+
+        if(nickname ==null) {
+            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
+        }
+
+        model.addAttribute("userAccount",userAccount);
+        model.addAttribute("isOwner",userAccount.getAccount().getNickname().equals(nickname));
+
+
+
+        return "account/profile";
+    }
+
+
+    @GetMapping("/profile/update") //프로필 수정 페이지
+    public String profileUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model) {
+        model.addAttribute("userAccount", userAccount);
+        model.addAttribute(new ProfileDto(userAccount));
+
+        return "account/profile-update";
+
+
+    }
+
+    @PostMapping("/profile/update") //프로필 수정 처리
+    public String profileUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid ProfileDto profileDto, Model model,
+                                Errors errors, RedirectAttributes attributes) {
+
+        if (errors.hasErrors()) {
+            model.addAttribute(userAccount);
+            return "account/profile-update";
+        }
+
+        accountService.updateProfile(userAccount.getAccount(),profileDto);
+        attributes.addFlashAttribute("message","수정이 완료되었습니다.");
+        return "redirect:/profile/update";
+    }
+
 
 
 }

@@ -3,6 +3,7 @@ package com.example.weekdays.service;
 import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
+import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,6 +19,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +31,8 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
+
+
 
     //회원가입 처리 하는 메서드
     public Account accountSave(@Valid SignupDto signupDto) {
@@ -60,8 +64,9 @@ public class AccountService implements UserDetailsService {
         Account newAccount = accountSave(signupDto); //signupDto를 사용하여 새로운계정을 생성합니다.
         newAccount.generateEmailCheckToken(); //newAccount 객체에 대해 이메일 확인을 위한 토큰을 생성합니다.
         sendSignUpConfirmEmail(newAccount); //이메일을 보냅니다.
-
     }
+
+
 
     public void sendSignUpConfirmEmail(Account newAccount) { //회원가입 인증 이메일을 생성하고 전송하는 메서드
 
@@ -80,7 +85,7 @@ public class AccountService implements UserDetailsService {
     }
 
 
-    public String checkEmailToken(String token, String email) { //이메일 주소와 토큰을 이용하여 회원가입 인증을 처리합니다.
+    public String checkEmailToken(String token, String email) { //이메일 주소와 토큰을 이용하여 이메일 인증을 처리합니다.
 
         Account account = accountRepository.findByEmail(email); //주어진 이메일 주소로 repository에서 해당 이메일 주소와 일치하는 계정을 검색합니다.
         if (account == null) { //검색된 계정이 없으면
@@ -91,6 +96,7 @@ public class AccountService implements UserDetailsService {
             return "wrong.token";
         }
         account.completeSignUp(); //email과 token 값을 만족하면 인증여부를 true로 바꾸고 가입완료한 시간을 업데이트 합니다.
+
         accountRepository.save(account);
         return account.getNickname();//가입이 완료된 계정의 닉네임을 반환합니다.
     }
@@ -112,14 +118,13 @@ public class AccountService implements UserDetailsService {
             throw new BadCredentialsException(username); //비밀번호 틀렸을 시
 
         }
-
         return new UserAccount(account);
         //DB에 들어있는 email을 username으로 취급해서 유저를 읽어옵니다.
         //인증 처리가 되면 authentication이라는 객체를 만들어서 securityContextHolder에 넣어줍니다.
 
     }
 
-    public void generatedAndResendCheckToken(UserAccount userAccount){ //이메일 재전송 하기 위해서 사용합니다.
+    public void updateTokenAndResendMail(UserAccount userAccount){ //이메일 재전송 하기 위해서 사용합니다.
         Account account =  userAccount.getAccount();
         account.generateEmailCheckToken(); //토큰을 발행하고 발행한 시간을 update
         sendSignUpConfirmEmail(account); // 메일 전송
@@ -127,6 +132,19 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
 
     }
+
+
+    public void updateProfile(Account account, ProfileDto profileDto){ // 프로필 소개란 수정
+        account.setUrl(profileDto.getUrl());
+        account.setOccupation(profileDto.getOccupation());
+        account.setLocation(profileDto.getLocation());
+        account.setBio(profileDto.getBio());
+        account.setProfileImage(profileDto.getProfileImage());
+
+    }
+
+
+
 
 
 }

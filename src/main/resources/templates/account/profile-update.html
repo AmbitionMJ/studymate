@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>프로필 수정 페이지</title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- bootstrap-daterangepicker -->
+    <link th:href="@{/vendors/bootstrap-daterangepicker/daterangepicker.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.css}" rel="stylesheet">
+    <link th:href="@{/node_modules/cropper/dist/cropper.min.css}" rel="stylesheet">
+    <head th:replace="fragments.html :: head"></head>
+</head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <!--sidebar menu -->
+        <div th:replace="sidebar-menu.html"></div>
+        <!--/sidebar menu -->
+
+        <!-- top navigation -->
+        <div th:replace="top-navigation.html";></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left">
+                        <h3>프로필 수정</h3>
+                    </div>
+
+                    <div class="title_right">
+                        <div class="col-md-5 col-sm-5  form-group pull-right top_search">
+                            <!--                            <div class="input-group">-->
+                            <!--                                <input type="text" class="form-control" placeholder="Search for...">-->
+                            <!--                                <span class="input-group-btn">-->
+                            <!--                      <button class="btn btn-secondary" type="button">Go!</button>-->
+                            <!--                    </span>-->
+                            <!--                            </div>-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 ">
+                        <div class="x_panel">
+                            <div class="col-sm-3 col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-header">
+                                        프로필 이미지
+                                    </div>
+                                    <div id="current-profile-image" class="mt-3">
+                                        <svg th:if="${#strings.isEmpty(profileDto.profileImage)}" class="rounded"
+                                             width="125" height="125"
+                                             th:data-jdenticon-value="${userAccount.account.nickname}">
+                                        </svg>
+                                        <img th:if="${!#strings.isEmpty(profileDto.profileImage)}" class="rounded"
+                                             th:src="${profileDto.profileImage}"
+                                             width="125" height="125" alt="name" th:alt="${userAccount.account.nickname}"/>
+                                    </div>
+                                    <div id="new-profile-image" class="mt-3"></div>
+                                    <div class="card-body">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="profile-image-file">
+                                            <label class="custom-file-label" for="profile-image-file">이미지</label>
+                                        </div>
+                                        <div id="new-profile-image-control" class="mt-3">
+                                            <button class="btn btn-outline-primary btn-block" id="cut-button">자르기
+                                            </button>
+                                            <button class="btn btn-outline-success btn-block" id="confirm-button">
+                                                확인
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-block" id="reset-button">취소
+                                            </button>
+                                        </div>
+                                        <div id="cropped-new-profile-image" class="mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- start profile form -->
+                            <div class="col-md-5 col-sm-5 ">
+
+                                <br><br>
+                                <!-- end of user-activity-graph -->
+
+                                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                    <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                        <li class="active"><a th:href="@{/profile/update}"
+                                                              aria-expanded="true">프로필</a>
+                                        </li>
+                                        <li class=""><a th:href="@{/account/update}" aria-expanded="false">계정</a>
+                                        </li>
+                                        <li class=""><a th:href="@{/password/update}" aria-expanded="false">비밀번호</a>
+                                        </li>
+                                        <li class=""><a th:href="@{/notifications}" aria-expanded="false">알림</a>
+                                        </li>
+                                    </ul>
+
+
+                                    <div th:if="${message}"
+                                         class="alert alert-info alert-dismissable fade show mt-3" role="alert">
+                                        <span th:text="${message}">메시지</span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">x</span>
+                                        </button>
+                                    </div>
+                                    <div id="myTabContent" class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active " id="tab_content1"
+                                             aria-labelledby="home-tab">
+                                        </div>
+                                        <br>
+
+
+                                        <form th:action="@{/profile/update}" th:object="${profileDto}" method="post"
+                                              novalidate>
+                                            <label for="bio">한 줄 소개</label>
+                                            <input id="bio" type="text" th:field="*{bio}" class="form-control"
+                                                   placeholder="간략한 소개를 부탁합니다." aria-describedby="bioHelp" required>
+                                            <small id="bioHelp" class="form-text text-muted">
+                                                길지 않게 35자 이내로 입력하세요.
+                                            </small>
+                                            <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}"
+                                                   th:errors="*{bio}">
+                                                조금 길어요.
+                                            </small>
+                                            <br>
+                                            <div class="form-group">
+                                                <label for="url">링크</label>
+                                                <input id="url" type="url" th:field="*{url}" class="form-control"
+                                                       placeholder="http://studyolle.com" aria-describedby="urlHelp"
+                                                       required>
+                                                <small id="urlHelp" class="form-text text-muted">
+                                                    블로그, 유튜브 또는 포트폴리오나 좋아하는 웹 사이트 등 본인을 표현할 수 있는 링크를 추가하세요.
+                                                </small>
+                                                <small class="form-text text-danger"
+                                                       th:if="${#fields.hasErrors('url')}" th:errors="*{url}">
+                                                    올바른 URL이 아닙니다. 예시처럼 입력해 주세요.
+                                                </small>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label for="company">직업</label>
+                                                <input id="company" type="text" th:field="*{occupation}"
+                                                       class="form-control"
+                                                       placeholder="어떤 일을 하고 계신가요?"
+                                                       aria-describedby="occupationHelp" required>
+                                                <small id="occupationHelp" class="form-text text-muted">
+                                                    개발자? 매니저? 취준생? 대표님?
+                                                </small>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label for="location">취미</label>
+                                                <input id="location" type="text" th:field="*{location}"
+                                                       class="form-control"
+                                                       placeholder="코딩, 음악감상, 낚시"
+                                                       aria-describedby="locationdHelp" required>
+                                                <small id="locationdHelp" class="form-text text-muted">
+                                                    나의 취미를 소개해 주세요.
+                                                </small>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <input id="profileImage" type="hidden" th:field="*{profileImage}"
+                                                       class="form-control"/>
+
+                                            </div>
+
+                                            <br>
+                                            <br>
+                                            <button class="btn btn-outline-primary"
+                                                    type="submit">수정하기
+                                            </button>
+
+                                            <br>
+                                            <div class="ln_solid">
+                                                <div class="form-group">
+                                                    <div class="col-md-8 offset-md-3">
+                                                        <br>
+                                                        <a th:href="@{/}"
+                                                           class="btn btn-info bi bi-arrow-return-left">메인으로</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- /page content -->
+
+    <!-- footer content -->
+
+    <!-- /footer content -->
+</div>
+
+
+<script type="application/javascript">
+    $(function () {
+        cropper = '';
+        let $confirmBtn = $('#confirm-button');
+        let $resetBtn = $("#reset-button");
+        let $cutBtn = $('#cut-button');
+        let $newProfileImage = $('#new-profile-image');
+        let $currentProfileImage = $("#current-profile-image");
+        let $resultImage = $('#cropped-new-profile-image');
+        let $profileImage = $('#profileImage');
+
+
+        // 초기 버튼과 새로운 프로필 이미지 숨기기
+        $newProfileImage.hide();
+        $cutBtn.hide();
+        $resetBtn.hide();
+        $confirmBtn.hide();
+
+        $("#profile-image-file").change(function (e) {      // 프로필 사진이 바뀔때
+            if (e.target.files.length === 1) {
+                const reader = new FileReader(); //자바스크립트 파일을 읽어온다
+                reader.onload = e => {
+                    if (e.target.result) {                           // 파일을 가져왔을 경우
+                        // 이미지태그 만들기
+                        let img = document.createElement("img");
+                        img.id = 'new-profile';
+                        img.src = e.target.result;
+                        img.width = 250;
+
+                        $newProfileImage.html(img);     // newProfileImage영역에 위에서 만든 이미지 태그 삽입
+                        $newProfileImage.show();
+                        $currentProfileImage.hide();
+
+                        // Cropper 적용
+                        let $newImage = $(img);
+                        $newImage.cropper({aspectRatio: 1});
+                        cropper = $newImage.data('cropper');
+
+                        $cutBtn.show();
+                        $confirmBtn.hide();
+                        $resetBtn.show();
+                    }
+                };
+
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        $resetBtn.click(function () { //리셋 버튼을 눌렀을 경우
+            $currentProfileImage.show();
+            $newProfileImage.hide();
+            $resultImage.hide();
+            $resetBtn.hide();
+            $cutBtn.hide();
+            $confirmBtn.hide();
+            $profileImage.val('');
+            $("#profile-image-file").val(''); //취소하기 후 같은 이미지파일을 재등록 했을때 감지시키는 역할
+        });
+
+        $cutBtn.click(function () { //잘라내기
+            let dataUrl = cropper.getCroppedCanvas().toDataURL();
+            let newImage = document.createElement("img");
+            newImage.id = "cropped-new-profile-image";
+            newImage.src = dataUrl;
+            newImage.width = 125;
+            $resultImage.html(newImage);
+            $resultImage.show();
+            $confirmBtn.show();
+
+            $confirmBtn.click(function () {
+                $newProfileImage.html(newImage);
+                $cutBtn.hide();
+                $confirmBtn.hide();
+                $profileImage.val(dataUrl);
+            });
+
+        });
+    });
+
+
+</script>
+
+<!-- jQuery -->
+<script th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/vendors/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<!-- FastClick -->
+<script th:src="@{/vendors/fastclick/lib/fastclick.js}"></script>
+<!-- NProgress -->
+<script th:src="@{/vendors/nprogress/nprogress.js}"></script>
+<!-- morris.js -->
+<script th:src="@{/vendors/raphael/raphael.min.js}"></script>
+<script th:src="@{/vendors/morris.js/morris.min.js}"></script>
+<!-- bootstrap-progressbar -->
+<script th:src="@{/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js}"></script>
+<!-- bootstrap-daterangepicker -->
+<script th:src="@{/vendors/moment/min/moment.min.js}"></script>
+<script th:src="@{/vendors/bootstrap-daterangepicker/daterangepicker.js}"></script>
+
+<!-- Custom Theme Scripts -->
+<script th:src="@{/build/js/custom.min.js}"></script>
+<!-- jdenticon -->
+<script th:src="@{/node_modules/jdenticon/dist/jdenticon.min.js}"></script>
+
+<script th:src="@{/node_modules/cropper/dist/cropper.min.js}"></script>
+<script th:src="@{/node_modules/jquery-cropper/dist/jquery-cropper.min.js}"></script>
+</body>
+</html>

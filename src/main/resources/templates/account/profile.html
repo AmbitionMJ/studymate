@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>프로필 페이지</title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- bootstrap-daterangepicker -->
+    <link th:href="@{/vendors/bootstrap-daterangepicker/daterangepicker.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.css}" rel="stylesheet">
+
+    <head th:replace="fragments.html :: head"></head>
+</head>
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+
+        <!-- sidebar menu -->
+        <div th:replace="sidebar-menu.html"></div>
+        <!-- /sidebar menu -->
+
+        <!-- top navigation -->
+        <div th:replace="top-navigation.html" ;></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left">
+                        <h3>내프로필</h3>
+                    </div>
+
+                    <!--                    <div class="title_right">-->
+                    <!--                        <div class="col-md-5 col-sm-5  form-group pull-right top_search">-->
+                    <!--                            <div class="input-group">-->
+                    <!--                                <input type="text" class="form-control" placeholder="Search for...">-->
+                    <!--                                <span class="input-group-btn">-->
+                    <!--                      <button class="btn btn-secondary" type="button">Go!</button>-->
+                    <!--                    </span>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-8 col-sm-12 col-xs-12 ">
+                        <div class="x_panel">
+                            <!--                            <div class="x_title">-->
+                            <!--                                <ul class="nav navbar-right panel_toolbox">-->
+                            <br>
+                            <!--                                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>-->
+                            <!--                                    </li>-->
+                            <!--                                    <li class="dropdown">-->
+                            <!--                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"-->
+                            <!--                                           aria-expanded="false"><i class="fa fa-wrench"></i></a>-->
+                            <!--                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">-->
+                            <!--                                            <a class="dropdown-item" href="#">Settings 1</a>-->
+                            <!--                                            <a class="dropdown-item" href="#">Settings 2</a>-->
+                            <!--                                        </div>-->
+                            <!--                                    </li>-->
+                            <!--                                    <li><a class="close-link"><i class="fa fa-close"></i></a>-->
+                            <!--                                    </li>-->
+                            <!--                                </ul>-->
+                            <!--                                <div class="clearfix"></div>-->
+                            <!--                            </div>-->
+                            <div class="x_content">
+                                <div class="col-md-5 col-sm-5  ">
+                                    <div class="profile_img">
+                                        <div>
+                                            <!-- Avatar -->
+                                            <svg th:if="${#strings.isEmpty(userAccount.account.profileImage)}"
+                                                 class="img-fluid float-left rounded img-thumbnail"
+                                                 th:data-jdenticon-value="${userAccount.account.nickname}" width="150"
+                                                 height="150"></svg>
+                                            <img th:if="${!#strings.isEmpty(userAccount.account.profileImage)}"
+                                                 class="img-fluid float-left rounded img-thumbnail"
+                                                 th:src="${userAccount.account.profileImage}"
+                                                 width="150" height="150"/>
+                                        </div>
+                                    </div>
+                                    <br><br>
+                                    <br><br>
+                                    <br><br>
+                                    &nbsp;&nbsp;
+                                    <ul class="list-unstyled user_data">
+                                        <li th:if="${!#strings.isEmpty(userAccount.account.bio)}"
+                                            th:text="${userAccount.account.bio}"></li>
+                                        <li th:if="${#strings.isEmpty(userAccount.account.bio) && isOwner}">한 줄 소개를
+                                            작성하세요.
+                                        </li>
+                                        <br>
+
+                                        <div th:if="${isOwner}">
+                                            <a class="btn btn-outline-primary"
+                                               th:href="@{/profile/update}">
+                                                <i class="fa fa-edit m-right-xs"></i>
+                                                프로필 수정</a>
+                                        </div>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div th:if="${message}" class="alert alert-info alert-dismissible fade show mt-3"
+                                     role="alert">
+                                    <span th:text="${message}">메시지</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="col-md-5 col-sm-5 ">
+                                    <div class="tab-content" id="v-pills-tabContent">
+                                        <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel"
+                                             aria-labelledby="v-pills-home-tab">
+
+
+                                            <h1 class="display-6 " th:text="${userAccount.account.nickname}"></h1>
+                                            <p th:if="${!#strings.isEmpty(userAccount.account.url)}">
+                            <span style="font-size: 20px;">
+                                <i class="fa fa-link col-1"></i>
+                            </span>
+                                                <span th:text="${userAccount.account.url}" class="col-11"></span>
+                                            </p>
+                                            <p th:if="${!#strings.isEmpty(userAccount.account.occupation)}">
+                            <span style="font-size: 20px;">
+                                <i class="fa fa-briefcase col-1"></i>
+                            </span>
+                                                <span th:text="${userAccount.account.occupation}" class="col-9"></span>
+                                            </p>
+                                            <p th:if="${!#strings.isEmpty(userAccount.account.location)}">
+                            <span style="font-size: 20px;">
+                                <i class="fa fa-location-arrow col-1"></i>
+                            </span>
+                                                <span th:text="${userAccount.account.location}" class="col-9"></span>
+                                            </p>
+                                            <p th:if="${isOwner}">
+                            <span style="font-size: 20px;">
+                                <i class="fa fa-envelope-o col-1"></i>
+                            </span>
+                                                <span th:text="${userAccount.account.email}" class="col-9"></span>
+                                            </p>
+                                            <p th:if="${isOwner || userAccount.account.emailVerified}">
+                            <span style="font-size: 20px;">
+                                <i class="fa fa-calendar-o col-1"></i>
+                            </span>
+                                                <span th:if="${isOwner && !userAccount.account.emailVerified}"
+                                                      class="col-9">
+                                <a href="#" th:href="@{'/check-email?email=' + ${userAccount.account.email}}">가입을 완료하려면 이메일을 확인하세요.</a>
+                            </span>
+                                                <span th:text="${#temporals.format(userAccount.account.joinedAt, 'yyyy년 M월 가입')}"
+                                                      class="col-9"></span>
+                                            </p>
+                                            <br><br>
+
+                                        </div>
+                                        <div class="tab-pane fade" id="v-pills-study" role="tabpanel"
+                                             aria-labelledby="v-pills-profile-tab">
+                                            Study
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /page content -->
+
+<!-- footer content -->
+
+<!-- /footer content -->
+</div>
+<!-- jQuery -->
+<script th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/vendors/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<!-- FastClick -->
+<script th:src="@{/vendors/fastclick/lib/fastclick.js}"></script>
+<!-- NProgress -->
+<script th:src="@{/vendors/nprogress/nprogress.js}"></script>
+<!-- morris.js -->
+<script th:src="@{/vendors/raphael/raphael.min.js}"></script>
+<script th:src="@{/vendors/morris.js/morris.min.js}"></script>
+<!-- bootstrap-progressbar -->
+<script th:src="@{/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js}"></script>
+<!-- bootstrap-daterangepicker -->
+<script th:src="@{/vendors/moment/min/moment.min.js}"></script>
+<script th:src="@{/vendors/bootstrap-daterangepicker/daterangepicker.js}"></script>
+<!-- Custom Theme Scripts -->
+<script th:src="@{/build/js/custom.min.js}"></script>
+<!-- jdenticon -->
+<script th:src="@{/node_modules/jdenticon/dist/jdenticon.min.js}"></script>
+</body>
+</html>

@@ -28,6 +28,8 @@ public class SecurityConfig {
     private final DataSource dataSource;
 
 
+
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
         return (web) -> web.ignoring().antMatchers("/vendors/**","/build/**","/images/**","/node_modules/**","/error");
@@ -41,7 +43,7 @@ public class SecurityConfig {
     public  SecurityFilterChain config(HttpSecurity http) throws Exception{
 
         http.authorizeRequests()
-                .antMatchers("/","/signup","/check-email-token","/login")
+                .antMatchers("/","/signup","/check-email-token","/login","/profile")
                 .permitAll().
                 anyRequest().authenticated();
 
