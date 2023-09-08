@@ -3,6 +3,7 @@ package com.example.weekdays.service;
 import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
+import com.example.weekdays.dto.PasswordDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
@@ -141,9 +142,16 @@ public class AccountService implements UserDetailsService {
         account.setBio(profileDto.getBio());
         account.setProfileImage(profileDto.getProfileImage());
 
+        accountRepository.save(account);
+
     }
 
 
+    public void updatePassword(Account account, String newPassword){ //비밀번호 수정
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+
+    }
 
 
 

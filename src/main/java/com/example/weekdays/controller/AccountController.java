@@ -2,8 +2,10 @@ package com.example.weekdays.controller;
 
 
 import com.example.weekdays.component.UserAccount;
+import com.example.weekdays.component.validator.CheckPasswordValidator;
 import com.example.weekdays.component.validator.CheckSignupValidator;
 import com.example.weekdays.domain.entity.Account;
+import com.example.weekdays.dto.PasswordDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.service.AccountService;
 import com.example.weekdays.dto.SignupDto;
@@ -35,12 +37,20 @@ public class AccountController {
     private final AccountService accountService;
     private final CheckSignupValidator checkSignupValidator;
     private final AuthenticationManager authenticationManager;
+    private final CheckPasswordValidator checkPasswordValidator;
 
     @InitBinder("signupDto") //메서드가 어떤 객체에 대한 데이터 바인딩 및 유효성 검사를 처리할지 지정
     public void initBinder(WebDataBinder webDataBinder) { //이 메서드는 데이터 바인더를 커스터마이징 하는 역할입니다.
         webDataBinder.addValidators(checkSignupValidator); //checkSignupValidator 객체를 데이터 바인더에 추가합니다.
 
     }
+
+    @InitBinder("passwordDto")
+    public void passwordBinder(WebDataBinder webDataBinder){
+        webDataBinder.addValidators(checkPasswordValidator);
+
+    }
+
 
 
     @GetMapping("/signup") //회원가입 페이지
@@ -173,17 +183,46 @@ public class AccountController {
     }
 
     @PostMapping("/profile/update") //프로필 수정 처리
-    public String profileUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid ProfileDto profileDto, Model model,
-                                Errors errors, RedirectAttributes attributes) {
+    public String profileUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid ProfileDto profileDto,
+                                Errors errors, Model model, RedirectAttributes attributes) {
 
         if (errors.hasErrors()) {
-            model.addAttribute(userAccount);
+            model.addAttribute("userAccount",userAccount);
             return "account/profile-update";
         }
 
         accountService.updateProfile(userAccount.getAccount(),profileDto);
         attributes.addFlashAttribute("message","수정이 완료되었습니다.");
         return "redirect:/profile/update";
+    }
+
+
+
+    @GetMapping("/password/update") //비밀번호 수정 페이지
+
+    public String passwordUpdateForm(@AuthenticationPrincipal UserAccount userAccount,Model model){
+
+        model.addAttribute("userAccount",userAccount);
+        model.addAttribute("passwordDto",new PasswordDto()); //PasswordDto 클래스의 생성자를 호출하여 새로운 PasswordDto 객체를 만들고 할당합니다.
+
+        return "account/password-update";
+    }
+
+    @PostMapping("/password/update") //비밀번호 수정 처리
+    public String passwordUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid PasswordDto passwordDto,
+                                     Errors errors, Model model, RedirectAttributes attributes){
+
+
+        if(errors.hasErrors()){
+            model.addAttribute("userAccount",userAccount);
+            return "account/password-update";
+        }
+
+        accountService.updatePassword(userAccount.getAccount(),passwordDto.getNewPassword());
+        attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
+
+
+        return "redirect:/password/update";
     }
 
 
