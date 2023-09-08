@@ -5,6 +5,7 @@ import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckPasswordValidator;
 import com.example.weekdays.component.validator.CheckSignupValidator;
 import com.example.weekdays.domain.entity.Account;
+import com.example.weekdays.dto.NotificationsDto;
 import com.example.weekdays.dto.PasswordDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.service.AccountService;
@@ -226,7 +227,31 @@ public class AccountController {
     }
 
 
+    @GetMapping("/notifications")
+    public String updateNotificationsForm(@AuthenticationPrincipal UserAccount userAccount, Model model){
 
+        model.addAttribute(userAccount);
+        model.addAttribute(new NotificationsDto(userAccount.getAccount()));
+
+        return "account/notifications";
+
+    }
+
+    @PostMapping("/notifications")
+    public String updateNotification(@AuthenticationPrincipal UserAccount userAccount,NotificationsDto notificationsDto, Errors errors, Model model, RedirectAttributes attributes) {
+
+
+        if (errors.hasErrors()) {
+            model.addAttribute(userAccount);
+            return "account/notifications";
+        }
+
+        accountService.updateNotifications(userAccount.getAccount(), notificationsDto);
+        attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
+
+        return "redirect:/notifications";
+
+    }
 }
 
 

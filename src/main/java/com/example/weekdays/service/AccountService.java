@@ -3,6 +3,7 @@ package com.example.weekdays.service;
 import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
+import com.example.weekdays.dto.NotificationsDto;
 import com.example.weekdays.dto.PasswordDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.dto.SignupDto;
@@ -32,6 +33,7 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
+
 
 
 
@@ -152,7 +154,12 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
 
     }
+    public void updateNotifications(Account account, NotificationsDto notificationsDto) { //알림 설정 수정
+    account.setKeywordCreatedByEmail(notificationsDto.isKeywordCreatedByEmail());
+    account.setKeywordCreatedByWeb(notificationsDto.isKeywordCreatedByWeb());
+    accountRepository.save(account);
 
+    }
 
 
 }
