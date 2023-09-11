@@ -8,6 +8,7 @@ import com.example.weekdays.dto.PasswordDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,7 +34,7 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
-
+    private final ModelMapper modelMapper;
 
 
 
@@ -138,12 +139,7 @@ public class AccountService implements UserDetailsService {
 
 
     public void updateProfile(Account account, ProfileDto profileDto){ // 프로필 소개란 수정
-        account.setUrl(profileDto.getUrl());
-        account.setOccupation(profileDto.getOccupation());
-        account.setLocation(profileDto.getLocation());
-        account.setBio(profileDto.getBio());
-        account.setProfileImage(profileDto.getProfileImage());
-
+        modelMapper.map(profileDto,account);
         accountRepository.save(account);
 
     }
@@ -155,9 +151,8 @@ public class AccountService implements UserDetailsService {
 
     }
     public void updateNotifications(Account account, NotificationsDto notificationsDto) { //알림 설정 수정
-    account.setKeywordCreatedByEmail(notificationsDto.isKeywordCreatedByEmail());
-    account.setKeywordCreatedByWeb(notificationsDto.isKeywordCreatedByWeb());
-    accountRepository.save(account);
+        modelMapper.map(notificationsDto,account);
+        accountRepository.save(account);
 
     }
 
