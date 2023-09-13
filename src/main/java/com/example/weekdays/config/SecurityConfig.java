@@ -43,7 +43,8 @@ public class SecurityConfig {
     public  SecurityFilterChain config(HttpSecurity http) throws Exception{
 
         http.authorizeRequests()
-                .antMatchers("/","/signup","/check-email-token","/login","/profile")
+                .antMatchers("/","/signup","/check-email-token","/login","/profile","/password/update","/profile/update","/account/notifications"
+                ,"/find-password")
                 .permitAll().
                 anyRequest().authenticated();
 

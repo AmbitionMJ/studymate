@@ -4,7 +4,6 @@ import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.dto.NotificationsDto;
-import com.example.weekdays.dto.PasswordDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +34,6 @@ public class AccountService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
     private final ModelMapper modelMapper;
-
 
 
     //회원가입 처리 하는 메서드
@@ -69,7 +67,6 @@ public class AccountService implements UserDetailsService {
         newAccount.generateEmailCheckToken(); //newAccount 객체에 대해 이메일 확인을 위한 토큰을 생성합니다.
         sendSignUpConfirmEmail(newAccount); //이메일을 보냅니다.
     }
-
 
 
     public void sendSignUpConfirmEmail(Account newAccount) { //회원가입 인증 이메일을 생성하고 전송하는 메서드
@@ -106,7 +103,6 @@ public class AccountService implements UserDetailsService {
     }
 
 
-
     //spring security 로그인 필수로 구현해야하는 메소드
     //loadUserByUsername함수에서 id로 DB조회
     //찾을 수 없으면 UsernameNotFoundException을 Throw 합니다.
@@ -115,10 +111,10 @@ public class AccountService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Account account = accountRepository.findByEmail(username);
-        if(account.getEmail() == null) {
+        if (account.getEmail() == null) {
             throw new UsernameNotFoundException(username); //username(email)이 잘못됐다고 예외를 던져준다.
         }
-        if(account.getPassword() == null) {
+        if (account.getPassword() == null) {
             throw new BadCredentialsException(username); //비밀번호 틀렸을 시
 
         }
@@ -128,8 +124,8 @@ public class AccountService implements UserDetailsService {
 
     }
 
-    public void updateTokenAndResendMail(UserAccount userAccount){ //이메일 재전송 하기 위해서 사용합니다.
-        Account account =  userAccount.getAccount();
+    public void updateTokenAndResendMail(UserAccount userAccount) { //이메일 재전송 하기 위해서 사용합니다.
+        Account account = userAccount.getAccount();
         account.generateEmailCheckToken(); //토큰을 발행하고 발행한 시간을 update
         sendSignUpConfirmEmail(account); // 메일 전송
 
@@ -138,21 +134,77 @@ public class AccountService implements UserDetailsService {
     }
 
 
-    public void updateProfile(Account account, ProfileDto profileDto){ // 프로필 소개란 수정
-        modelMapper.map(profileDto,account);
+    public void updateProfile(Account account, ProfileDto profileDto) { // 프로필 소개란 수정
+        modelMapper.map(profileDto, account);
         accountRepository.save(account);
 
     }
 
 
-    public void updatePassword(Account account, String newPassword){ //비밀번호 수정
+    public void updatePassword(Account account, String newPassword) { //비밀번호 수정
         account.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
 
     }
+
     public void updateNotifications(Account account, NotificationsDto notificationsDto) { //알림 설정 수정
-        modelMapper.map(notificationsDto,account);
+        modelMapper.map(notificationsDto, account);
         accountRepository.save(account);
+
+    }
+
+
+    public String resetPasswordByEmail(String email) { //비밀번호 찾기 - 회원인지 확인
+
+        Account account = accountRepository.findByEmail(email); //가입된 회원인지 , 3분 내에 발송 했었는지 검증
+        if (account == null) { 
+            return "wrong.email";
+
+        }
+        if (!account.canSendConfirmEmail()) { //3분에 한번만 발송 가능합니다. ( 과부화 예방 )
+            return "time.yet";
+
+        }
+
+        String temporaryPassword = generateTemporaryPassword(8); //임시비밀번호 생성
+
+
+        String hashedPassword = passwordEncoder.encode(temporaryPassword); //비밀번호 해싱 및 저장
+        account.setPassword(hashedPassword);
+        accountRepository.save(account);
+
+
+        sendLoginLink(account,temporaryPassword); //해싱 전 임시비밀번호를 보내줍니다. // 추후 비밀번호 변경페이지로 필히 유도
+        return email;
+
+    }
+
+
+    public void sendLoginLink(Account account, String temporaryPassword) {  //임시비밀번호를 생성하고 메일을 보내는 메서드 (비밀번호 찾기 - 회원인지 확인)
+
+        String emailMessage = "임시 비밀번호 :" + temporaryPassword + "\n" + "이메일: "+account.getEmail();
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject("스터디메이트, 임시비밀번호 발급");
+        mailMessage.setText(emailMessage);
+
+        javaMailSender.send(mailMessage);
+
+    }
+
+    public String generateTemporaryPassword(int length){ //임시비밀번호(난수) 만들기
+        StringBuilder randomPassword = new StringBuilder();
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom secureRandom = new SecureRandom();
+
+        for(int i =0; i<length; i++){
+            char randomChar = characters.charAt(secureRandom.nextInt(characters.length()));
+            randomPassword.append(randomChar);
+
+        }
+
+        return randomPassword.toString();
 
     }
 

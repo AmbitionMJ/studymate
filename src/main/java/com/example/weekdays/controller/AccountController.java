@@ -11,14 +11,12 @@ import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.service.AccountService;
 import com.example.weekdays.dto.SignupDto;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.Banner;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -40,6 +38,7 @@ public class AccountController {
     private final AuthenticationManager authenticationManager;
     private final CheckPasswordValidator checkPasswordValidator;
 
+
     @InitBinder("signupDto") //메서드가 어떤 객체에 대한 데이터 바인딩 및 유효성 검사를 처리할지 지정
     public void initBinder(WebDataBinder webDataBinder) { //이 메서드는 데이터 바인더를 커스터마이징 하는 역할입니다.
         webDataBinder.addValidators(checkSignupValidator); //checkSignupValidator 객체를 데이터 바인더에 추가합니다.
@@ -47,11 +46,10 @@ public class AccountController {
     }
 
     @InitBinder("passwordDto")
-    public void passwordBinder(WebDataBinder webDataBinder){
+    public void passwordBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(checkPasswordValidator);
 
     }
-
 
 
     @GetMapping("/signup") //회원가입 페이지
@@ -61,7 +59,7 @@ public class AccountController {
     }
 
     @GetMapping("/login") //로그인 페이지
-    public String loginForm(){
+    public String loginForm() {
         return "account/login";
 
     }
@@ -74,9 +72,8 @@ public class AccountController {
     }
 
 
-
     @PostMapping("/signup") //회원가입 처리
-    public String signUpSubmit(@Valid SignupDto signupDto, Errors errors, Model model ) {
+    public String signUpSubmit(@Valid SignupDto signupDto, Errors errors, Model model) {
 
         if (errors.hasErrors()) { //에러가 있으면 입력 데이터를 유지하고 폼을 다시 보여줍니다. Spring MVC 자체 처리
             Map<String, String> validatorResult = accountService.validateHandling(errors); //유효성 통과 못한 필드와 메시지를 핸들링 합니다.
@@ -89,15 +86,13 @@ public class AccountController {
         }
 
 
-
         accountService.processNewAccount(signupDto);
-        authenticateAndLogin(signupDto.getEmail(),signupDto.getPassword());
+        authenticateAndLogin(signupDto.getEmail(), signupDto.getPassword());
         return "redirect:/";
     }
 
 
-
-    private void authenticateAndLogin(String email, String password){ //회원 가입 후 자동로그인을 위한 코드
+    private void authenticateAndLogin(String email, String password) { //회원 가입 후 자동로그인을 위한 코드
         //사용자 인증을 위한 토큰 생성
         Authentication authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
@@ -132,19 +127,19 @@ public class AccountController {
 
 
     @GetMapping("/check-email") //메일 재전송 페이지
-    public String checkEmail(@AuthenticationPrincipal UserAccount userAccount, Model model){
+    public String checkEmail(@AuthenticationPrincipal UserAccount userAccount, Model model) {
 
-        model.addAttribute("email",userAccount.getAccount().getEmail());
+        model.addAttribute("email", userAccount.getAccount().getEmail());
 
         return "account/check-email";
 
     }
 
     @PostMapping("/check-email") //메일 재전송 처리
-    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount,Model model)  {
-        if(!userAccount.getAccount().canSendConfirmEmail()){ //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
-            model.addAttribute("error","인증 이메일은 3분에 한번만 전송할 수 있습니다.");
-            model.addAttribute("email",userAccount.getAccount().getEmail());
+    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model) {
+        if (!userAccount.getAccount().canSendConfirmEmail()) { //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
+            model.addAttribute("error", "인증 이메일은 3분에 한번만 전송할 수 있습니다.");
+            model.addAttribute("email", userAccount.getAccount().getEmail());
 
             return "account/check-email";
 
@@ -157,16 +152,15 @@ public class AccountController {
 
 
     @GetMapping("/profile/{nickname}") //프로필 페이지
-    public String profileForm(@PathVariable String nickname, Model model, @AuthenticationPrincipal UserAccount userAccount){
+    public String profileForm(@PathVariable String nickname, Model model, @AuthenticationPrincipal UserAccount userAccount) {
 
 
-        if(nickname ==null) {
+        if (nickname == null) {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
         }
 
-        model.addAttribute("userAccount",userAccount);
-        model.addAttribute("isOwner",userAccount.getAccount().getNickname().equals(nickname));
-
+        model.addAttribute("userAccount", userAccount);
+        model.addAttribute("isOwner", userAccount.getAccount().getNickname().equals(nickname));
 
 
         return "account/profile";
@@ -188,38 +182,37 @@ public class AccountController {
                                 Errors errors, Model model, RedirectAttributes attributes) {
 
         if (errors.hasErrors()) {
-            model.addAttribute("userAccount",userAccount);
+            model.addAttribute("userAccount", userAccount);
             return "account/profile-update";
         }
 
-        accountService.updateProfile(userAccount.getAccount(),profileDto);
-        attributes.addFlashAttribute("message","수정이 완료되었습니다.");
+        accountService.updateProfile(userAccount.getAccount(), profileDto);
+        attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
         return "redirect:/profile/update";
     }
 
 
-
     @GetMapping("/password/update") //비밀번호 수정 페이지
 
-    public String passwordUpdateForm(@AuthenticationPrincipal UserAccount userAccount,Model model){
+    public String passwordUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model) {
 
-        model.addAttribute("userAccount",userAccount);
-        model.addAttribute("passwordDto",new PasswordDto()); //PasswordDto 클래스의 생성자를 호출하여 새로운 PasswordDto 객체를 만들고 할당합니다.
+        model.addAttribute("userAccount", userAccount);
+        model.addAttribute("passwordDto", new PasswordDto()); //PasswordDto 클래스의 생성자를 호출하여 새로운 PasswordDto 객체를 만들고 할당합니다.
 
         return "account/password-update";
     }
 
     @PostMapping("/password/update") //비밀번호 수정 처리
     public String passwordUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid PasswordDto passwordDto,
-                                     Errors errors, Model model, RedirectAttributes attributes){
+                                 Errors errors, Model model, RedirectAttributes attributes) {
 
 
-        if(errors.hasErrors()){
-            model.addAttribute("userAccount",userAccount);
+        if (errors.hasErrors()) {
+            model.addAttribute("userAccount", userAccount);
             return "account/password-update";
         }
 
-        accountService.updatePassword(userAccount.getAccount(),passwordDto.getNewPassword());
+        accountService.updatePassword(userAccount.getAccount(), passwordDto.getNewPassword());
         attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
 
 
@@ -227,8 +220,8 @@ public class AccountController {
     }
 
 
-    @GetMapping("/notifications")
-    public String updateNotificationsForm(@AuthenticationPrincipal UserAccount userAccount, Model model){
+    @GetMapping("/notifications") //알림 설정 페이지
+    public String updateNotificationsForm(@AuthenticationPrincipal UserAccount userAccount, Model model) {
 
         model.addAttribute(userAccount);
         model.addAttribute(new NotificationsDto(userAccount.getAccount()));
@@ -237,8 +230,8 @@ public class AccountController {
 
     }
 
-    @PostMapping("/notifications")
-    public String updateNotification(@AuthenticationPrincipal UserAccount userAccount,NotificationsDto notificationsDto, Errors errors, Model model, RedirectAttributes attributes) {
+    @PostMapping("/notifications") //알림 설정 처리
+    public String updateNotification(@AuthenticationPrincipal UserAccount userAccount, NotificationsDto notificationsDto, Errors errors, Model model, RedirectAttributes attributes) {
 
 
         if (errors.hasErrors()) {
@@ -251,7 +244,38 @@ public class AccountController {
 
         return "redirect:/notifications";
 
+
     }
+
+    @GetMapping("/find-password") //비밀번호 찾기 페이지
+    public String emailLoginForm() {
+
+
+        return "account/find-password";
+
+    }
+
+    @PostMapping("/find-password") //비밀번호 찾기 처리 (임시비밀번호 발급)
+    public String temporaryPassword (String email, Model model, RedirectAttributes attributes) {
+
+        String verification = accountService.resetPasswordByEmail(email); //검증을 수행합니다.
+        if ("wrong.email".equals(verification)) {
+            model.addAttribute("error", "유효한 이메일 주소가 아닙니다.");
+            return "account/find-password";
+
+        }
+        if ("time.yet".equals(verification)) {
+            model.addAttribute("error", "임시비밀번호 발급은 3분마다 시도할 수 있습니다.");
+
+            return "account/find-password";
+        }
+
+        attributes.addFlashAttribute("message", "임시 비밀번호를 발급하였습니다. 로그인 후 반드시 비밀번호를 변경해주세요.");
+        return "redirect:/find-password";
+    }
+
+
+
 }
 
 
