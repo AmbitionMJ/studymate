@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>계정 수정 페이지</title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- bootstrap-daterangepicker -->
+    <link th:href="@{/vendors/bootstrap-daterangepicker/daterangepicker.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.css}" rel="stylesheet">
+
+    <head th:replace="fragments.html :: head"></head>
+
+</head>
+
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+
+        <!-- sidebar menu -->
+        <div th:replace="sidebar-menu.html"></div>
+        <!-- /sidebar menu -->
+
+        <!-- top navigation -->
+        <div th:replace="top-navigation.html";></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left">
+                        <h3>계정 수정</h3>
+                    </div>
+
+                    <div class="title_right">
+                        <div class="col-md-5 col-sm-5  form-group pull-right top_search">
+                            <!--                            <div class="input-group">-->
+                            <!--                                <input type="text" class="form-control" placeholder="Search for...">-->
+                            <!--                                <span class="input-group-btn">-->
+                            <!--                      <button class="btn btn-secondary" type="button">Go!</button>-->
+                            <!--                    </span>-->
+                            <!--                            </div>-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 ">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <ul>
+
+
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <div class="col-md-3 col-sm-3 ">
+                                </div>
+
+                                <!-- start profile form -->
+                                <div class="col-md-5 col-sm-5 ">
+                                    <form th:action="@{/account/update}" method="post" th:object="${nicknameDto}"
+                                          novalidate>
+
+
+                                        <br><br>
+                                        <!-- end of user-activity-graph -->
+
+                                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                                <li class=""> <a th:href="@{/profile/update}"
+                                                                 aria-expanded="false">프로필</a>
+                                                </li>
+                                                <li class="active"><a th:href="@{/account/update}" aria-expanded="true">계정</a>
+                                                </li>
+                                                <li class=""><a th:href="@{/password/update}" aria-expanded="false">비밀번호</a>
+                                                </li>
+                                                <li class=""><a th:href="@{/notifications}" aria-expanded="false">알림</a>
+                                                </li>
+                                            </ul>
+                                            <div th:if="${message}"
+                                                 class="alert alert-info alert-dismissable fade show mt-3" role="alert">
+                                                <span th:text="${message}">메시지</span>
+                                                <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">x</span>
+                                                </button>
+                                            </div>
+                                            <div id="myTabContent" class="tab-content">
+                                                <div role="tabpanel" class="tab-pane active " id="tab_content1"
+                                                     aria-labelledby="home-tab">
+                                                </div>
+
+                                                <br>
+                                                <div class="field item form-group">
+                                                    <label class="col-form-label col-md-3 col-sm-3  label-align">닉네임</label>
+                                                    <div class="col-md-6 col-sm-6">
+                                                        <span class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">nickname Error</span>
+                                                        <input class="form-control" id="nickname"
+                                                               th:field="*{nickname}"/></div>
+                                                    <button class="btn btn-outline-primary"
+                                                            style="float:right" type="submit">변경
+                                                    </button>
+                                                    <br><br>
+
+
+                                                </div>
+
+
+                                                <br>
+                                                <div class="ln_solid">
+                                                    <div class="form-group">
+                                                        <div class="col-md-8 offset-md-3">
+                                                            <br>
+                                                            <a th:href="@{/}"
+                                                               class="btn btn-info bi bi-arrow-return-left">메인으로</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+
+        <!-- /footer content -->
+    </div>
+</div>
+
+
+<!-- jQuery -->
+<script th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/vendors/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<!-- FastClick -->
+<script th:src="@{/vendors/fastclick/lib/fastclick.js}"></script>
+<!-- NProgress -->
+<script th:src="@{/vendors/nprogress/nprogress.js}"></script>
+<!-- morris.js -->
+<script th:src="@{/vendors/raphael/raphael.min.js}"></script>
+<script th:src="@{/vendors/morris.js/morris.min.js}"></script>
+<!-- bootstrap-progressbar -->
+<script th:src="@{/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js}"></script>
+<!-- bootstrap-daterangepicker -->
+<script th:src="@{/vendors/moment/min/moment.min.js}"></script>
+<script th:src="@{/vendors/bootstrap-daterangepicker/daterangepicker.js}"></script>
+
+<!-- Custom Theme Scripts -->
+<script th:src="@{/build/js/custom.min.js}"></script>
+
+<!--jdenticon-->
+<script th:src="@{/node_modules/jdenticon/dist/jdenticon.min.js}"></script>
+
+<script th:src="@{/node_modules/cropper/dist/cropper.min.js}"></script>
+<script th:src="@{/node_modules/jquery-cropper/dist/jquery-cropper.min.js}"></script>
+</body>
+</html>

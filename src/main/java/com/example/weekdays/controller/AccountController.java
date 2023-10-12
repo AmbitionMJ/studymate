@@ -2,14 +2,12 @@ package com.example.weekdays.controller;
 
 
 import com.example.weekdays.component.UserAccount;
+import com.example.weekdays.component.validator.CheckNicknameValidator;
 import com.example.weekdays.component.validator.CheckPasswordValidator;
 import com.example.weekdays.component.validator.CheckSignupValidator;
 import com.example.weekdays.domain.entity.Account;
-import com.example.weekdays.dto.NotificationsDto;
-import com.example.weekdays.dto.PasswordDto;
-import com.example.weekdays.dto.ProfileDto;
+import com.example.weekdays.dto.*;
 import com.example.weekdays.service.AccountService;
-import com.example.weekdays.dto.SignupDto;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +35,7 @@ public class AccountController {
     private final CheckSignupValidator checkSignupValidator;
     private final AuthenticationManager authenticationManager;
     private final CheckPasswordValidator checkPasswordValidator;
+    private final CheckNicknameValidator checkNicknameValidator;
 
 
     @InitBinder("signupDto") //메서드가 어떤 객체에 대한 데이터 바인딩 및 유효성 검사를 처리할지 지정
@@ -51,6 +50,11 @@ public class AccountController {
 
     }
 
+    @InitBinder("nicknameDto")
+    public void nicknameBinder(WebDataBinder webDataBinder){
+        webDataBinder.addValidators(checkNicknameValidator);
+
+    }
 
     @GetMapping("/signup") //회원가입 페이지
     public String signUpForm(Model model, SignupDto signupDto) {
@@ -218,6 +222,29 @@ public class AccountController {
 
         return "redirect:/password/update";
     }
+
+    @GetMapping("/account/update") //닉네임 수정 페이지
+    public String accountUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model){
+        model.addAttribute("userAccount",userAccount);
+        model.addAttribute("nicknameDto",new NicknameDto());
+        return "account/account-update";
+
+    }
+
+    @PostMapping("/account/update") //닉네임 수정 처리
+    public String accountUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid NicknameDto nicknameDto, Errors errors, Model model, RedirectAttributes attributes ){
+
+        if(errors.hasErrors()){
+            model.addAttribute("userAccount", userAccount);
+            return "account/account-update";
+
+        }
+        accountService.updateNickname(userAccount.getAccount(),nicknameDto.getNickname());
+        attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
+        return "redirect:/account/update";
+
+    }
+
 
 
     @GetMapping("/notifications") //알림 설정 페이지

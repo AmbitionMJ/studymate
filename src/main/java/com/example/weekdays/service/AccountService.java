@@ -146,6 +146,12 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
 
     }
+    public void updateNickname(Account account, String nickname) { //닉네임 수정
+        account.setNickname(nickname);
+        accountRepository.save(account);
+
+
+    }
 
     public void updateNotifications(Account account, NotificationsDto notificationsDto) { //알림 설정 수정
         modelMapper.map(notificationsDto, account);
@@ -207,6 +213,7 @@ public class AccountService implements UserDetailsService {
         return randomPassword.toString();
 
     }
+
 
 
 }
