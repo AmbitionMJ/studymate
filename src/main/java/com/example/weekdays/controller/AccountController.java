@@ -5,6 +5,7 @@ import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckNicknameValidator;
 import com.example.weekdays.component.validator.CheckPasswordValidator;
 import com.example.weekdays.component.validator.CheckSignupValidator;
+import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.dto.*;
 import com.example.weekdays.service.AccountService;
 import lombok.AllArgsConstructor;
@@ -92,23 +93,12 @@ public class AccountController {
 
 
         accountService.processNewAccount(signupDto);
-        authenticateAndLogin(signupDto.getEmail(), signupDto.getPassword());
+
         return "redirect:/";
     }
 
 
-    private void authenticateAndLogin(String email, String password) { //회원 가입 후 자동로그인을 위한 코드
-        //사용자 인증을 위한 토큰 생성
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
-        //AuthenticationManager를 사용하여 사용자 인증 수행
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
-        //SecurityContext에 인증 정보 저장
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
-    }
 
 
     @GetMapping("/check-email-token")

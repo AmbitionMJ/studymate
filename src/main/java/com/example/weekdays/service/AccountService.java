@@ -12,10 +12,11 @@ import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,8 +28,6 @@ import org.springframework.validation.FieldError;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.validation.Valid;
 import java.security.SecureRandom;
 import java.util.*;
@@ -76,6 +75,7 @@ public class AccountService implements UserDetailsService {
         Account newAccount = accountSave(signupDto); //signupDto를 사용하여 새로운계정을 생성합니다.
         newAccount.generateEmailCheckToken(); //newAccount 객체에 대해 이메일 확인을 위한 토큰을 생성합니다.
         sendSignUpConfirmEmail(newAccount); //이메일을 보냅니다.
+        login(newAccount);
     }
 
 
@@ -121,9 +121,18 @@ public class AccountService implements UserDetailsService {
             return "wrong.token";
         }
         account.completeSignUp(); //email과 token 값을 만족하면 인증여부를 true로 바꾸고 가입완료한 시간을 업데이트 합니다.
-
+        login(account);
         accountRepository.save(account);
         return account.getNickname();//가입이 완료된 계정의 닉네임을 반환합니다.
+    }
+
+    public void login(Account account) { // 회원가입 후 자동로그인
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                new UserAccount(account),
+                account.getPassword(),
+                List.of(new SimpleGrantedAuthority("MEMBER")));
+
+        SecurityContextHolder.getContext().setAuthentication(token);
     }
 
 
@@ -160,10 +169,12 @@ public class AccountService implements UserDetailsService {
     }
 
 
+
+
     public void updateProfile(Account account, ProfileDto profileDto) { // 프로필 소개란 수정
+
         modelMapper.map(profileDto, account);
         accountRepository.save(account);
-
     }
 
 
