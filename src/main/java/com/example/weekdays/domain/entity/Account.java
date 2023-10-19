@@ -1,10 +1,14 @@
 package com.example.weekdays.domain.entity;
 
 import lombok.*;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -13,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity(name = "account")
-public class Account extends Time{
+public class Account extends Time implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //DB AI 설정
     private Long id;
@@ -79,8 +83,39 @@ public class Account extends Time{
 
     }
     public boolean canSendConfirmEmail() { //시간 텀을 정해줍니다.
-        return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(3));
+        return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now());
     }
 
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // 사용자의 권한을 설정합니다. 여기에서는 하나의 권한을 부여하도록 예제로 구현합니다.
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_"+role));
+    }
+
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return emailVerified;
+    }
 }

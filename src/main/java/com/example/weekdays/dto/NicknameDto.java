@@ -13,4 +13,6 @@ public class NicknameDto {
     private String nickname;
 
 
+
+
 }

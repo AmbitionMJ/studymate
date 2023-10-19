@@ -28,8 +28,6 @@ public class SecurityConfig {
     private final DataSource dataSource;
 
 
-
-
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
         return (web) -> web.ignoring().antMatchers("/vendors/**","/build/**","/images/**","/node_modules/**","/error");

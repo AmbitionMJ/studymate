@@ -28,10 +28,10 @@
         <div class="py-5 text-center" th:if="${error == null}">
 
             <div class="alert alert-info" role="alert">
-                이메일을 확인 했습니다. <span th:text="${nickname}"></span> 님 가입을 축하드립니다.
+                <span th:text="${nickname}"></span> 님 가입을 축하드립니다. 권한은 재 로그인 후 반영됩니다. 아래 링크를 눌러 다시 로그인 해주세요.
             </div>
 
-            <h1><a th:href="@{/}">weekdays</a> 로 이동합니다. </h1>
+            <h1><a th:href="@{/logout}">weekdays</a> 로 이동합니다. </h1>
         </div>
 
     </div>

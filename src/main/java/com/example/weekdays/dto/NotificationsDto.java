@@ -15,6 +15,7 @@ public class NotificationsDto {
 
 
     public NotificationsDto(Account account){
+
         this.keywordCreatedByEmail=account.isKeywordCreatedByEmail();
         this.keywordCreatedByWeb=account.isKeywordCreatedByWeb();
 

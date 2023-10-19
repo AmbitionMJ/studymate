@@ -18,10 +18,11 @@ public class AppConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
 
-        //자동 로그인을 구현하기 위함
-        //AuthenticationManager를 사용하여 사용자를 로그인하고, 로그인 정보를 SecurityContextHolder에 저장하여 현재 사용자를
-        //인증된 상태로 유지하는 방식으로 동작합니다.
+//    자동 로그인을 구현하기 위함
+//    AuthenticationManager를 사용하여 사용자를 로그인하고, 로그인 정보를 SecurityContextHolder에 저장하여 현재 사용자를
+//    인증된 상태로 유지하는 방식으로 동작합니다.
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,8 +33,8 @@ public class AppConfig {
     @Bean
     public ModelMapper modelMapper() { //객체 간 데이터 매핑을 간편하게 처리합니다.
         ModelMapper modelMapper = new ModelMapper();
-            modelMapper.getConfiguration()
-        .setDestinationNameTokenizer(NameTokenizers.UNDERSCORE)
+        modelMapper.getConfiguration()
+                .setDestinationNameTokenizer(NameTokenizers.UNDERSCORE)
                 .setSourceNameTokenizer(NameTokenizers.UNDERSCORE);
         return modelMapper;
 

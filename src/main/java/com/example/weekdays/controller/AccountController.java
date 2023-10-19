@@ -5,7 +5,6 @@ import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckNicknameValidator;
 import com.example.weekdays.component.validator.CheckPasswordValidator;
 import com.example.weekdays.component.validator.CheckSignupValidator;
-import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.dto.*;
 import com.example.weekdays.service.AccountService;
 import lombok.AllArgsConstructor;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Map;
 
 @Controller
@@ -111,7 +111,8 @@ public class AccountController {
 
 
     @GetMapping("/check-email-token")
-    public String checkEmailToken(String token, String email, Model model) {
+    public String checkEmailToken(String token, String email, Model model,@AuthenticationPrincipal UserAccount userAccount) {
+
 
         String verification = accountService.checkEmailToken(token, email); //메서드를 호출하여 이메일 확인 토큰을 검증하고 결과를 문자열로 반환
         if ("wrong.email".equals(verification)) {
@@ -124,6 +125,7 @@ public class AccountController {
 
         } else {
             model.addAttribute("nickname", verification);
+
         }
 
         return "account/checked-email";
@@ -155,45 +157,23 @@ public class AccountController {
     }
 
 
-    @GetMapping("/profile/{nickname}") //프로필 페이지
-    public String profileForm(@PathVariable String nickname, Model model, @AuthenticationPrincipal UserAccount userAccount) {
+    @GetMapping("/profile/{id}") //프로필 페이지
+    public String profileForm(@PathVariable Long id, Model model, @AuthenticationPrincipal UserAccount userAccount) {
 
 
-        if (nickname == null) {
-            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
+        if (id == null) {
+            throw new IllegalArgumentException(id + "에 해당하는 사용자가 없습니다.");
         }
 
+
         model.addAttribute("userAccount", userAccount);
-        model.addAttribute("isOwner", userAccount.getAccount().getNickname().equals(nickname));
+        model.addAttribute("isOwner", userAccount.getAccount().getId().equals(id));
 
 
         return "account/profile";
     }
 
 
-    @GetMapping("/profile/update") //프로필 수정 페이지
-    public String profileUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model) {
-        model.addAttribute("userAccount", userAccount);
-        model.addAttribute(new ProfileDto(userAccount));
-
-        return "account/profile-update";
-
-
-    }
-
-    @PostMapping("/profile/update") //프로필 수정 처리
-    public String profileUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid ProfileDto profileDto,
-                                Errors errors, Model model, RedirectAttributes attributes) {
-
-        if (errors.hasErrors()) {
-            model.addAttribute("userAccount", userAccount);
-            return "account/profile-update";
-        }
-
-        accountService.updateProfile(userAccount.getAccount(), profileDto);
-        attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
-        return "redirect:/profile/update";
-    }
 
 
     @GetMapping("/password/update") //비밀번호 수정 페이지
@@ -223,8 +203,37 @@ public class AccountController {
         return "redirect:/password/update";
     }
 
+    @GetMapping("/profile/update") //프로필 수정 페이지
+    public String profileUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model) {
+        model.addAttribute("userAccount", userAccount);
+        model.addAttribute(new ProfileDto(userAccount));
+
+
+
+        return "account/profile-update";
+
+
+    }
+
+    @PostMapping("/profile/update") //프로필 수정 처리
+    public String profileUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid ProfileDto profileDto,
+                                Errors errors, Model model, RedirectAttributes attributes) {
+
+        if (errors.hasErrors()) {
+            model.addAttribute("userAccount", userAccount);
+            return "account/profile-update";
+        }
+
+        accountService.updateProfile(userAccount.getAccount(), profileDto);
+
+
+        attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
+        return "redirect:/profile/update";
+    }
+
+
     @GetMapping("/account/update") //닉네임 수정 페이지
-    public String accountUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model){
+    public String accountUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model, Principal principal){
         model.addAttribute("userAccount",userAccount);
         model.addAttribute("nicknameDto",new NicknameDto());
         return "account/account-update";
@@ -232,7 +241,7 @@ public class AccountController {
     }
 
     @PostMapping("/account/update") //닉네임 수정 처리
-    public String accountUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid NicknameDto nicknameDto, Errors errors, Model model, RedirectAttributes attributes ){
+    public String accountUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid NicknameDto nicknameDto, Errors errors, Model model, RedirectAttributes attributes){
 
         if(errors.hasErrors()){
             model.addAttribute("userAccount", userAccount);
@@ -240,10 +249,12 @@ public class AccountController {
 
         }
         accountService.updateNickname(userAccount.getAccount(),nicknameDto.getNickname());
+
         attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
         return "redirect:/account/update";
 
     }
+
 
 
 

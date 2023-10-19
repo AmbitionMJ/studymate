@@ -14,5 +14,5 @@ boolean existsByNickname(String nickname); //닉네임 존재 여부 확인
 
     Account findByEmail(String email); //email을 검색하는데 사용
 
-
+    Account findByNickname(String nickname); //nickname을 검색하는데 사용
 }

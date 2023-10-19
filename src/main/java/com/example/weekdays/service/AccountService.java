@@ -22,8 +22,7 @@ import org.springframework.validation.FieldError;
 
 import javax.validation.Valid;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -108,14 +107,14 @@ public class AccountService implements UserDetailsService {
     //찾을 수 없으면 UsernameNotFoundException을 Throw 합니다.
     @Transactional(readOnly = true) //데이터를 읽어오는 용도이기 때문에 readOnly를 주었고, 그에 따라 성능에 유리
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        Account account = accountRepository.findByEmail(username);
-        if (account.getEmail() == null) {
-            throw new UsernameNotFoundException(username); //username(email)이 잘못됐다고 예외를 던져준다.
+        Account account = accountRepository.findByEmail(email);
+        if (account == null) {
+            throw new UsernameNotFoundException(email); //username(email)이 잘못됐다고 예외를 던져준다.
         }
         if (account.getPassword() == null) {
-            throw new BadCredentialsException(username); //비밀번호 틀렸을 시
+            throw new BadCredentialsException(email); //비밀번호 틀렸을 시
 
         }
         return new UserAccount(account);
@@ -123,6 +122,7 @@ public class AccountService implements UserDetailsService {
         //인증 처리가 되면 authentication이라는 객체를 만들어서 securityContextHolder에 넣어줍니다.
 
     }
+
 
     public void updateTokenAndResendMail(UserAccount userAccount) { //이메일 재전송 하기 위해서 사용합니다.
         Account account = userAccount.getAccount();
@@ -146,10 +146,10 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
 
     }
+
     public void updateNickname(Account account, String nickname) { //닉네임 수정
         account.setNickname(nickname);
         accountRepository.save(account);
-
 
     }
 
@@ -163,7 +163,7 @@ public class AccountService implements UserDetailsService {
     public String resetPasswordByEmail(String email) { //비밀번호 찾기 - 회원인지 확인
 
         Account account = accountRepository.findByEmail(email); //가입된 회원인지 , 3분 내에 발송 했었는지 검증
-        if (account == null) { 
+        if (account == null) {
             return "wrong.email";
 
         }
@@ -180,7 +180,7 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
 
 
-        sendLoginLink(account,temporaryPassword); //해싱 전 임시비밀번호를 보내줍니다. // 추후 비밀번호 변경페이지로 필히 유도
+        sendLoginLink(account, temporaryPassword); //해싱 전 임시비밀번호를 보내줍니다. // 추후 비밀번호 변경페이지로 필히 유도
         return email;
 
     }
@@ -188,7 +188,7 @@ public class AccountService implements UserDetailsService {
 
     public void sendLoginLink(Account account, String temporaryPassword) {  //임시비밀번호를 생성하고 메일을 보내는 메서드 (비밀번호 찾기 - 회원인지 확인)
 
-        String emailMessage = "임시 비밀번호 :" + temporaryPassword + "\n" + "이메일: "+account.getEmail();
+        String emailMessage = "임시 비밀번호 :" + temporaryPassword + "\n" + "이메일: " + account.getEmail();
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(account.getEmail());
@@ -199,12 +199,12 @@ public class AccountService implements UserDetailsService {
 
     }
 
-    public String generateTemporaryPassword(int length){ //임시비밀번호(난수) 만들기
+    public String generateTemporaryPassword(int length) { //임시비밀번호(난수) 만들기
         StringBuilder randomPassword = new StringBuilder();
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom secureRandom = new SecureRandom();
 
-        for(int i =0; i<length; i++){
+        for (int i = 0; i < length; i++) {
             char randomChar = characters.charAt(secureRandom.nextInt(characters.length()));
             randomPassword.append(randomChar);
 
@@ -213,7 +213,6 @@ public class AccountService implements UserDetailsService {
         return randomPassword.toString();
 
     }
-
 
 
 }

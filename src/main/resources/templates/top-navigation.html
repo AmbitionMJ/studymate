@@ -41,10 +41,10 @@
                         <img th:if="${!#strings.isEmpty(userAccount?.account.profileImage)}" th:src="${userAccount?.account.profileImage}"
                              width="24" height="24" class="rounded border bg-light"/>
 
-                        <span th:text="${userAccount.username}"> </span> 님
+                        <span th:text="${userAccount.account.nickname}"> </span> 님
                     </a>
                     <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item"  th:href="@{'/profile/' + ${userAccount.username}}"> <i class="fa fa-user pull-right " ></i>내정보</a>
+                        <a class="dropdown-item"  th:href="@{'/profile/' + ${userAccount.account.id}}"> <i class="fa fa-user pull-right " ></i>내정보</a>
                         <a class="dropdown-item"  th:href="@{/logout}"><i class="fa fa-sign-out pull-right"></i>로그아웃</a>
                     </div>
                 </li>
