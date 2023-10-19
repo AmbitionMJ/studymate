@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>이메일 인증 성공</title>
+
+    <!-- 회원가입 이메일 인증 메일 html form-->
+
+</head>
+<body>
+
+<div>
+    <p>안녕하세요. <span th:text="${nickname}"></span>님</p>
+
+    <h2 th:text="${message}">메시지</h2>
+
+    <div>
+        <a th:href="${host + link}" th:text="${linkName}">Link</a>
+        <p>링크가 동작하지 않는 경우에는 아래 URL을 웹브라우저에 복사해서 붙여 넣으세요.</p>
+        <small th:text="${host + link}"></small>
+    </div>
+</div>
+</body>
+</html>

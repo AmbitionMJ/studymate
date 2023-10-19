@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
@@ -111,7 +112,7 @@ public class AccountController {
 
 
     @GetMapping("/check-email-token")
-    public String checkEmailToken(String token, String email, Model model,@AuthenticationPrincipal UserAccount userAccount) {
+    public String checkEmailToken(String token, String email, Model model) {
 
 
         String verification = accountService.checkEmailToken(token, email); //메서드를 호출하여 이메일 확인 토큰을 검증하고 결과를 문자열로 반환
@@ -142,7 +143,7 @@ public class AccountController {
     }
 
     @PostMapping("/check-email") //메일 재전송 처리
-    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model) {
+    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model) throws MessagingException {
         if (!userAccount.getAccount().canSendConfirmEmail()) { //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
             model.addAttribute("error", "인증 이메일은 3분에 한번만 전송할 수 있습니다.");
             model.addAttribute("email", userAccount.getAccount().getEmail());

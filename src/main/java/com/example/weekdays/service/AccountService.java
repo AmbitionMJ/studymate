@@ -1,15 +1,20 @@
 package com.example.weekdays.service;
 
 import com.example.weekdays.component.UserAccount;
+import com.example.weekdays.component.mail.EmailMessage;
+import com.example.weekdays.component.mail.EmailService;
+import com.example.weekdays.config.AppProperties;
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.dto.NotificationsDto;
 import com.example.weekdays.dto.ProfileDto;
 import com.example.weekdays.dto.SignupDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,21 +24,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.validation.Valid;
 import java.security.SecureRandom;
 import java.util.*;
 
 @Service
+@Log4j2
 @Transactional
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JavaMailSender javaMailSender;
     private final ModelMapper modelMapper;
-
+    private final EmailService emailService;
+    private final TemplateEngine templateEngine;
+    private final AppProperties appProperties;
 
     //회원가입 처리 하는 메서드
     public Account accountSave(@Valid SignupDto signupDto) {
@@ -61,20 +72,34 @@ public class AccountService implements UserDetailsService {
 
     }
 
-    public void processNewAccount(SignupDto signupDto) { //회원가입 프로세스 처리하는 메서드
+    public void processNewAccount(SignupDto signupDto)  { //회원가입 프로세스 처리하는 메서드
         Account newAccount = accountSave(signupDto); //signupDto를 사용하여 새로운계정을 생성합니다.
         newAccount.generateEmailCheckToken(); //newAccount 객체에 대해 이메일 확인을 위한 토큰을 생성합니다.
         sendSignUpConfirmEmail(newAccount); //이메일을 보냅니다.
     }
 
 
-    public void sendSignUpConfirmEmail(Account newAccount) { //회원가입 인증 이메일을 생성하고 전송하는 메서드
+    public void sendSignUpConfirmEmail(Account newAccount)  { //회원가입 인증 이메일을 생성하고 전송하는 메서드
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(newAccount.getEmail());
-        mailMessage.setSubject("회원 가입 인증");
-        mailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken() + "&email=" + newAccount.getEmail());
-        javaMailSender.send(mailMessage); //메일 전송
+        Context context = new Context();
+        context.setVariable("link", "/check-email-token?token=" + newAccount.getEmailCheckToken() +
+                "&email=" + newAccount.getEmail());
+        context.setVariable("nickname", newAccount.getNickname());
+        context.setVariable("linkName", "이메일 인증하기");
+        context.setVariable("message", "서비스를 사용하려면 링크를 클릭하세요.");
+        context.setVariable("host", appProperties.getHost());
+
+
+        String message = templateEngine.process("account/simple-link", context);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(newAccount.getEmail())
+                .subject("weekdays, 회원 가입 인증")
+                .message(message)
+                .build();
+
+        emailService.sendEmail(emailMessage);
+
     }
 
 
@@ -102,6 +127,7 @@ public class AccountService implements UserDetailsService {
     }
 
 
+
     //spring security 로그인 필수로 구현해야하는 메소드
     //loadUserByUsername함수에서 id로 DB조회
     //찾을 수 없으면 UsernameNotFoundException을 Throw 합니다.
@@ -110,7 +136,7 @@ public class AccountService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         Account account = accountRepository.findByEmail(email);
-        if (account == null) {
+        if (account.getEmail() == null) {
             throw new UsernameNotFoundException(email); //username(email)이 잘못됐다고 예외를 던져준다.
         }
         if (account.getPassword() == null) {
@@ -188,14 +214,25 @@ public class AccountService implements UserDetailsService {
 
     public void sendLoginLink(Account account, String temporaryPassword) {  //임시비밀번호를 생성하고 메일을 보내는 메서드 (비밀번호 찾기 - 회원인지 확인)
 
-        String emailMessage = "임시 비밀번호 :" + temporaryPassword + "\n" + "이메일: " + account.getEmail();
+        Context context = new Context();
+        context.setVariable("link", "/check-email-token?token=" + account.getEmailCheckToken() +
+                "&email=" + account.getEmail());
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("linkName", "이메일 인증하기");
+        context.setVariable("message", "서비스를 사용하려면 링크를 클릭하세요.");
+        context.setVariable("host", appProperties.getHost());
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(account.getEmail());
-        mailMessage.setSubject("스터디메이트, 임시비밀번호 발급");
-        mailMessage.setText(emailMessage);
 
-        javaMailSender.send(mailMessage);
+        String message = templateEngine.process("account/simple-link", context);
+
+//        String emailMessage = "임시 비밀번호 :" + temporaryPassword + "\n" + "이메일: " + account.getEmail();
+//
+//        SimpleMailMessage mailMessage = new SimpleMailMessage();
+//        mailMessage.setTo(account.getEmail());
+//        mailMessage.setSubject("스터디메이트, 임시비밀번호 발급");
+//        mailMessage.setText(emailMessage);
+//
+//        javaMailSender.send(mailMessage);
 
     }
 
