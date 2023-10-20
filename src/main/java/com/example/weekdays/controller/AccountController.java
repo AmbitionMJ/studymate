@@ -133,7 +133,7 @@ public class AccountController {
     }
 
     @PostMapping("/check-email") //메일 재전송 처리
-    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model) throws MessagingException {
+    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model)  {
         if (!userAccount.getAccount().canSendConfirmEmail()) { //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
             model.addAttribute("error", "인증 이메일은 3분에 한번만 전송할 수 있습니다.");
             model.addAttribute("email", userAccount.getAccount().getEmail());
@@ -148,17 +148,19 @@ public class AccountController {
     }
 
 
-    @GetMapping("/profile/{id}") //프로필 페이지
-    public String profileForm(@PathVariable Long id, Model model, @AuthenticationPrincipal UserAccount userAccount) {
+    @GetMapping("/profile/{nickname}") //프로필 페이지
+    public String profileForm(@PathVariable String nickname, Model model, @AuthenticationPrincipal UserAccount userAccount) {
 
 
-        if (id == null) {
-            throw new IllegalArgumentException(id + "에 해당하는 사용자가 없습니다.");
+        boolean isOwner = nickname.equals(userAccount.getAccount().getNickname());
+
+        if(!isOwner){
+            throw new IllegalArgumentException(nickname+"에 해당하는 사용자가 없습니다.");
+
         }
 
-
         model.addAttribute("userAccount", userAccount);
-        model.addAttribute("isOwner", userAccount.getAccount().getId().equals(id));
+        model.addAttribute("isOwner", isOwner);
 
 
         return "account/profile";
