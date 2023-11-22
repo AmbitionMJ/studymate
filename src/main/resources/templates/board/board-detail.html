@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title th:text="${boardDto.title}"></title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress --> <!-- 서버 응답을 보여줍니다 -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- bootstrap-daterangepicker -->
+    <link th:href="@{/vendors/bootstrap-daterangepicker/daterangepicker.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.css}" rel="stylesheet">
+
+    <head th:replace="fragments.html :: head"></head>
+
+
+
+</head>
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <!-- sidebar menu -->
+        <div th:replace="sidebar-menu.html"></div>
+        <!-- /sidebar menu -->
+
+
+        <!-- top navigation -->
+        <div th:replace="top-navigation.html"></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_right">
+                        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 ">
+                        <br>
+                        <div class="row justify-content-center">
+                            <div class="needs-validation col-sm-10">
+
+                                <h2 th:text=${boardDto.title}></h2>
+
+<!--                                <div sec:authorize="isAuthenticated()"-->
+<!--                                     class="nav-item dropdown open"-->
+<!--                                     th:if="${#authentication.principal.userAccount.nickname} == ${boardDto.writer}"-->
+<!--                                     style="padding-left: 15px;">-->
+<!--                                    <form th:action="@{'/board/delete/' + ${boardDto.id}}"-->
+<!--                                          method="post"-->
+<!--                                          style="margin: 0">-->
+<!--                                        <input type="hidden" name="_method" value="delete"/>-->
+<!--                                        <button class="btn btn-outline-primary" style="float: right;">삭제</button>-->
+
+
+<!--                                        <a id="edit" th:href="@{'/board/edit/' + ${boardDto.id}}"-->
+<!--                                           class="btn btn-outline-primary"-->
+<!--                                           style="float: right;">수정</a>-->
+
+
+<!--                                    </form>-->
+<!--                                </div>-->
+
+
+                                <span th:text="${boardDto.writer}"> </span>
+
+                                <span th:text="${#temporals.format(boardDto.createdDate, '| yy. MM.dd HH:mm')}"></span>
+
+
+                                <div class="x_content">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="table">
+
+
+                                                <div class="x_title"></div>
+
+                                                <h4 th:text="${boardDto.content}"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br><br>
+                                    <!--                                    <div class="x_title"></div>-->
+                                    <br>
+                                    <a type="button" th:href="@{/}" class="btn btn-info bi bi-arrow-return-left">목록
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /page content -->
+
+    </div>
+</div>
+
+<!-- jQuery -->
+<script th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/vendors/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Custom Theme Scripts -->
+<script th:src="@{/build/js/custom.min.js}"></script>
+
+
+</body>
+</html>

@@ -7,9 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +22,9 @@ public class Account extends Time implements UserDetails {
 
     @Column(length = 20, nullable = false) //이메일
     private String email;
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL)
+    private List<Board> boards = new ArrayList<>();
 
     @Column(length = 20, nullable = false) //닉네임
     private String nickname;

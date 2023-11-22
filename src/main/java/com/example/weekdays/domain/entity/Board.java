@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,8 +23,9 @@ public class Board extends Time{
     @Column(length = 50, nullable = false)
     private String title; //글 제목
 
-    @Column(nullable = false)
-    private String writer; //작성자
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account writer; //작성자
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -33,7 +35,7 @@ public class Board extends Time{
 
 
     @Builder
-    public Board(String title, String content, String writer, Long count){
+    public Board(String title, String content, Account writer, Long count){
         //id는 데이터베이스에서 자동으로 생성되기 때문에 직접 설정할 필요는 없다.
         this.title =title;
         this.content=content;

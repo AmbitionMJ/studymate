@@ -1,6 +1,7 @@
 package com.example.weekdays.dto;
 
 
+import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.entity.Board;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class BoardDto {
         // Board 클래스의 인스턴스를 반환합니다. DTO에서 엔터티로의 변환을 수행하는 데 사용됩니다.
      return  Board.builder()
                 .title(title)
-                .writer(writer)
+//                .writer(writer)
                 .content(content)
                 .count(count)
                 .build();
@@ -46,4 +47,6 @@ public class BoardDto {
         this.modifiedDate=modifiedDate;
 
     }
+
+
 }
