@@ -1,10 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title></title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <!-- NProgress -->
+    <link th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet">
+    <!-- bootstrap-daterangepicker -->
+    <link th:href="@{/vendors/bootstrap-daterangepicker/daterangepicker.css}" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link th:href="@{/build/css/custom.css}" rel="stylesheet">
+    <head th:replace="fragments.html :: head"></head>
 </head>
-<body>
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+
+        <!-- sidebar menu -->
+        <div th:replace="sidebar-menu.html"></div>
+        <!-- /sidebar menu -->
+
+        <!-- top navigation -->
+        <div th:replace="top-navigation.html";></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left">
+                        <h3>글 수정</h3>
+                    </div>
+
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12 ">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <br>
+                                <div class="clearfix"></div>
+                            </div>
+                            &nbsp;&nbsp; <div class="row justify-content-center">
+
+                            <form class="needs-validation col-sm-10" th:action="@{'/board/update/' + ${boardDto.id}}" method="post" novalidate>
+                                <input type="hidden" name="_method" value="put"/>
+                                <input type="hidden" name="id" th:value="${boardDto.id}"/>
+
+                                <div class="form-group">
+                                    <label for="title">제목</label>
+                                    <textarea id="title" type="text" class="form-control" th:text="${boardDto.title}" th:name="title"
+                                              placeholder="제목을 입력하세요." aria-describedby="titleHelp" required max="50"></textarea>
+                                    <small id="titleHelp" class="form-text text-muted">
+                                        제목을 50자 이내로 입력하세요.
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fullDescription">내용</label>
+                                    <textarea id="fullDescription" type="textarea"  class="editor2 form-control" th:name="content"
+                                              th:text="${boardDto.content}"
+                                              placeholder="내용" aria-describedby="fullDescriptionHelp" required></textarea>
+                                </div>
+
+                                <div>
+                                    <input type="hidden" th:name="writer" th:value="${boardDto.writer}" >
+
+                                </div>
+                                <input type="hidden" th:name="modifiedDate" th:value="${boardDto.modifiedDate}">
+                                <div class="form-group">
+                                    <button class="btn btn-primary btn-block" type="submit"
+                                            aria-describedby="submitHelp">등록</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /page content -->
+
+<!-- footer content -->
+
+<!-- /footer content -->
+</div>
+
+<div th:fragment="editor-script">
+    <script th:src="@{/node_modules/summernote/dist/summernote-bs4.js}"></script>
+    <script type="application/javascript">
+        $(function () {
+            $('.editor2').summernote({
+                fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Noto Sans KR', 'Merriweather'],
+                placeholder: '글 내용을 적어주세요.',
+                tabsize: 2,
+                height: 300
+            });
+        });
+    </script>
+</div>
+<!-- jQuery -->
+<script th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/vendors/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<!-- FastClick -->
+<script th:src="@{/vendors/fastclick/lib/fastclick.js}"></script>
+<!-- NProgress -->
+<script th:src="@{/vendors/nprogress/nprogress.js}"></script>
+<!-- morris.js -->
+<script th:src="@{/vendors/raphael/raphael.min.js}"></script>
+<script th:src="@{/vendors/morris.js/morris.min.js}"></script>
+<!-- bootstrap-progressbar -->
+<script th:src="@{/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js}"></script>
+<!-- bootstrap-daterangepicker -->
+<script th:src="@{/vendors/moment/min/moment.min.js}"></script>
+<script th:src="@{/vendors/bootstrap-daterangepicker/daterangepicker.js}"></script>
+<!-- Custom Theme Scripts -->
+<script th:src="@{/build/js/custom.min.js}"></script>
+<!-- jdenticon -->
+<script th:src="@{/node_modules/jdenticon/dist/jdenticon.min.js}"></script>
+
+<script th:replace="fragments.html :: tooltip"></script>
+<script th:replace="fragments.html :: form-validation"></script>
+<script th:replace="fragments.html :: editor-script"></script>
+
 
 </body>
 </html>

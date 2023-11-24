@@ -58,24 +58,24 @@
 
                                 <h2 th:text=${boardDto.title}></h2>
 
-<!--                                <div sec:authorize="isAuthenticated()"-->
-<!--                                     class="nav-item dropdown open"-->
-<!--                                     th:if="${#authentication.principal.userAccount.nickname} == ${boardDto.writer}"-->
-<!--                                     style="padding-left: 15px;">-->
-<!--                                    <form th:action="@{'/board/delete/' + ${boardDto.id}}"-->
-<!--                                          method="post"-->
-<!--                                          style="margin: 0">-->
-<!--                                        <input type="hidden" name="_method" value="delete"/>-->
-<!--                                        <button class="btn btn-outline-primary" style="float: right;">삭제</button>-->
+                                <div sec:authorize="isAuthenticated()"
+                                     class="nav-item dropdown open"
+                                     th:if="${userAccount.account.nickname} == ${boardDto.writer}"
+                                     style="padding-left: 15px;">
+                                    <form th:action="@{'/board/delete/' + ${boardDto.id}}"
+                                          method="post"
+                                          style="margin: 0">
+                                        <input type="hidden" name="_method" value="delete"/>
+                                        <button class="btn btn-outline-primary" style="float: right;">삭제</button>
 
 
-<!--                                        <a id="edit" th:href="@{'/board/edit/' + ${boardDto.id}}"-->
-<!--                                           class="btn btn-outline-primary"-->
-<!--                                           style="float: right;">수정</a>-->
+                                        <a id="update" th:href="@{'/board/update/' + ${boardDto.id}}"
+                                           class="btn btn-outline-primary"
+                                           style="float: right;">수정</a>
 
 
-<!--                                    </form>-->
-<!--                                </div>-->
+                                    </form>
+                                </div>
 
 
                                 <span th:text="${boardDto.writer}"> </span>

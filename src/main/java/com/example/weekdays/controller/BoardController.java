@@ -53,7 +53,68 @@ public class BoardController {
         return "board/board-detail";
 
     }
-    
-    
+
+    @GetMapping("/board/update/{id}") //게시글 수정 페이지
+    public String boardUpdateForm(@AuthenticationPrincipal UserAccount userAccount, @PathVariable Long id,Model model){
+
+        if(userAccount != null){
+            model.addAttribute("userAccount", userAccount);
+
+        }
+
+        BoardDto boardDto = boardService.getPostDetail(id); //값이 미리 채워진 상태로 렌더링 됩니다. (수정이 필요한 부분만 변경하고 제출!)
+        model.addAttribute("boardDto", boardDto);
+
+
+        return "board/board-update";
+    }
+
+    @PostMapping("/board/update/{id}") //게시글 수정 처리
+    public String boardUpdate(@AuthenticationPrincipal UserAccount userAccount, BoardDto boardDto, @PathVariable Long id, Model model){
+
+        if(userAccount != null){
+            model.addAttribute("userAccount", userAccount);
+
+        }
+        boardService.BoardUpdate(id, boardDto);
+
+
+
+        return "redirect:/";
+    }
+
+
+    @PostMapping("/board/delete/{id}") // 게시글 삭제
+    public String deleteBoard(@AuthenticationPrincipal UserAccount userAccount, @PathVariable Long id, Model model) {
+
+        if(userAccount != null){
+            model.addAttribute("userAccount", userAccount);
+
+        }
+
+        boardService.deleteBoard(id);
+
+        return "redirect:/";
+
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
