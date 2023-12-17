@@ -60,7 +60,7 @@
 
                                 <div sec:authorize="isAuthenticated()"
                                      class="nav-item dropdown open"
-                                     th:if="${userAccount.account.nickname} == ${boardDto.writer}"
+                                     th:if='${userAccount.account.nickname.equals(boardDto.writer)}'
                                      style="padding-left: 15px;">
                                     <form th:action="@{'/board/delete/' + ${boardDto.id}}"
                                           method="post"

@@ -43,5 +43,8 @@ public class Board extends Time{
         this.count=count;
 
     }
-
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

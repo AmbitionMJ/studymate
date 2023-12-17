@@ -28,7 +28,7 @@ public class BoardDto {
         // Board 클래스의 인스턴스를 반환합니다. DTO에서 엔터티로의 변환을 수행하는 데 사용됩니다.
      return  Board.builder()
                 .title(title)
-//                .writer(writer)
+//                .writer(writer)  // service 레이어에서 별도로 등록 해줍니다.
                 .content(content)
                 .count(count)
                 .build();

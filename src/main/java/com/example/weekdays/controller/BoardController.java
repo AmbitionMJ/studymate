@@ -19,10 +19,10 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/board/write") //게시글 등록 페이지
-    public String boardWriteForm(@AuthenticationPrincipal UserAccount userAccount, Model model){
+    public String boardWriteForm(@AuthenticationPrincipal UserAccount userAccount, Model model) {
 
 
-        if(userAccount != null){
+        if (userAccount != null) {
             model.addAttribute("userAccount", userAccount);
 
         }
@@ -31,7 +31,7 @@ public class BoardController {
     }
 
     @PostMapping("/board/write") //게시글 등록 처리
-    public String boardWrite(@AuthenticationPrincipal UserAccount userAccount, BoardDto boardDto, Model model){
+    public String boardWrite(@AuthenticationPrincipal UserAccount userAccount, BoardDto boardDto, Model model) {
 
         boardService.createBoard(boardDto);
         model.addAttribute(userAccount);
@@ -40,44 +40,44 @@ public class BoardController {
     }
 
     @GetMapping("/board/detail/{id}") //게시글 상세보기 페이지
-    public String boardDetailForm(@PathVariable Long id, @AuthenticationPrincipal UserAccount userAccount, Model model){
+    public String boardDetailForm(@PathVariable Long id, @AuthenticationPrincipal UserAccount userAccount, Model model) {
 
-        if(userAccount !=null){
-            model.addAttribute("userAccount",userAccount);
+        if (userAccount != null) {
+            model.addAttribute("userAccount", userAccount);
 
         }
 
         BoardDto boardDto = boardService.getPostDetail(id);
-        model.addAttribute("boardDto",boardDto);
+        model.addAttribute("boardDto", boardDto);
+
 
         return "board/board-detail";
 
     }
 
     @GetMapping("/board/update/{id}") //게시글 수정 페이지
-    public String boardUpdateForm(@AuthenticationPrincipal UserAccount userAccount, @PathVariable Long id,Model model){
+    public String boardUpdateForm(@AuthenticationPrincipal UserAccount userAccount, @PathVariable Long id, Model model) {
+        BoardDto boardDto = boardService.getPostDetail(id);
 
-        if(userAccount != null){
+        if (userAccount != null && userAccount.getUsername().equals(boardDto.getWriter())) { // 사용자가 로그인 상태인지, 현재 사용자의 이름과 게시글의 작성자와 일치하는지 검사
             model.addAttribute("userAccount", userAccount);
+            model.addAttribute("boardDto", boardDto);
 
+            return "board/board-update";
         }
 
-        BoardDto boardDto = boardService.getPostDetail(id); //값이 미리 채워진 상태로 렌더링 됩니다. (수정이 필요한 부분만 변경하고 제출!)
-        model.addAttribute("boardDto", boardDto);
 
-
-        return "board/board-update";
+        return "redirect:/"; //사용자가 로그인하지 않았거나 본인이 작성한 게시글이 아닌경우 메인화면으로 리다이렉트합니다.
     }
 
     @PostMapping("/board/update/{id}") //게시글 수정 처리
-    public String boardUpdate(@AuthenticationPrincipal UserAccount userAccount, BoardDto boardDto, @PathVariable Long id, Model model){
+    public String boardUpdate(@AuthenticationPrincipal UserAccount userAccount, BoardDto boardDto, @PathVariable Long id, Model model) {
 
-        if(userAccount != null){
+        if (userAccount != null) {
             model.addAttribute("userAccount", userAccount);
 
         }
         boardService.BoardUpdate(id, boardDto);
-
 
 
         return "redirect:/";
@@ -87,7 +87,7 @@ public class BoardController {
     @PostMapping("/board/delete/{id}") // 게시글 삭제
     public String deleteBoard(@AuthenticationPrincipal UserAccount userAccount, @PathVariable Long id, Model model) {
 
-        if(userAccount != null){
+        if (userAccount != null) {
             model.addAttribute("userAccount", userAccount);
 
         }
