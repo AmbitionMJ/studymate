@@ -6,6 +6,10 @@ import com.example.weekdays.domain.repository.AccountRepository;
 import com.example.weekdays.domain.repository.BoardRepository;
 import com.example.weekdays.dto.BoardDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,28 +42,22 @@ public class BoardService {
         return board.getId();
     }
 
-    public List<BoardDto> postList(Long id) { //글 목록
 
-        List<Board> boardEntity = boardRepository.findAll(); //게시글 엔터티를 모두 가져옵니다.
-        List<BoardDto> boardDtoList = new ArrayList<>(); // BoardDto 객체들을 담을 리스트를 생성합니다.
+        public Page<BoardDto> getPostPage(Pageable pageable) { //글 목록 - 페이징 기능 구현
+        //한 페이지에 출력할 글의 개수를 10개로 지정합니다. 정렬은 id를 기준으로 내림차순으로 설정합니다.
+        Pageable pageableWithSize10 = PageRequest.of(pageable.getPageNumber(), 10, Sort.by("id").descending());
 
-        for (Board board : boardEntity) { // 가져온 게시글 엔터티 목록을 순회합니다.
-            BoardDto boardDto = BoardDto.builder() // Board 엔터티를 BoardDto로 변환하는 작업
-                    .id(board.getId()) //Board 엔터티의 ID를 BoardDto에 설정
+        // 페이징된 글 목록을 조회하고, 각 글을 BoardDto로 변환하여 반환합니다.
+            return boardRepository.findAll(pageableWithSize10).map(board -> BoardDto.builder()
+                    .id(board.getId())
                     .title(board.getTitle())
                     .count(board.getCount())
                     .writer(board.getWriter().getNickname())
                     .content(board.getContent())
                     .createdDate(board.getCreatedDate())
-
-                    .build();
-
-            boardDtoList.add(boardDto); //변환된 BoardDto를 리스트에 추가합니다.
-
+                    .build());
         }
-        return boardDtoList; // 변환된 BoardDto 리스트를 반환합니다.
 
-    }
 
     public BoardDto getPostDetail(Long id) { //게시글 상세보기
         Optional<Board> boardEntityWrapper = boardRepository.findById(id); // 주어진 ID에 해당하는 게시글을 찾습니다.

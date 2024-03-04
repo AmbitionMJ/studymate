@@ -87,7 +87,7 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr th:each="board : ${boardDtoList}">
+                                                        <tr th:each="board, index : ${boardDtoPage.content}">
                                                             <td>
                                                                 <span th:text="${board.id}"></span>
                                                             </td>
@@ -100,14 +100,27 @@
                                                                 <span th:text="${board.writer}"></span>
                                                             </td>
                                                             <td>
-
-
+                                                                <span th:text="${board.count}"></span>
                                                             </td>
                                                             <td>
-                                                                <span th:text="${#temporals.format(board.createdDate, 'yyyy.MM.dd')}"></span>
+                                                                <span th:text="${#temporals.format(board.createdDate, 'yyyy.MM.dd.mm.ss')}"></span>
                                                             </td>
                                                         </tr>
+                                                        </tbody>
                                                     </table>
+                                                    <nav aria-label="Page navigation">
+                                                        <ul class="pagination justify-content-center">
+                                                            <li th:class="${boardDtoPage.first} ? 'disabled'"> <!-- 첫번째 페이지의 경우 이전 페이지로 이동할 수 없음(disabled)-->
+                                                                <a class="page-link" th:href="@{/(page=0, size=${boardDtoPage.size})}">Previous</a>
+                                                            </li>
+                                                            <li th:each="page : ${#numbers.sequence(0, boardDtoPage.totalPages - 1)}" th:class="${boardDtoPage.number == page} ? 'active'">
+                                                                <a class="page-link" th:href="@{/(page=${page}, size=${boardDtoPage.size})}" th:text="${page + 1}"></a> <!-- 페이지 번호를 출력 인덱스는 0에서부터 시작하므로, 출력할 때는 1을 더합니다.-->
+                                                            </li>
+                                                            <li th:class="${boardDtoPage.last} ? 'disabled'"> <!-- 마지막 페이지의 경우 다음 페이지로 이동할 수 없음(disabled)-->
+                                                                <a class="page-link" th:href="@{/(page=${boardDtoPage.totalPages - 1}, size=${boardDtoPage.size})}">Next</a>
+                                                            </li>
+                                                        </ul>
+                                                    </nav>
                                                 </div>
                                             </div>
                                         </div>
