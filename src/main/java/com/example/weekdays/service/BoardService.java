@@ -14,9 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import javax.servlet.http.HttpSession;
+import java.util.*;
 
 
 @Service
@@ -34,8 +33,6 @@ public class BoardService {
                 .title(boardDto.getTitle())
                 .content(boardDto.getContent())
                 .writer(writer)
-                .count(boardDto.getCount())
-
                 .build();
         boardRepository.save(board);
 
@@ -80,7 +77,7 @@ public class BoardService {
         }
     }
 
-    public void BoardUpdate(Long id, BoardDto boardDto) {
+    public void BoardUpdate(Long id, BoardDto boardDto) { //게시글 업데이트
 
         Board board = boardRepository.findById(id)
                 .orElseThrow(IllegalArgumentException::new); // id에 해당하는 게시물을 찾아옵니다. 찾지 못하면 예외를 발생시킵니다.
@@ -91,11 +88,28 @@ public class BoardService {
 
     }
 
-    public void deleteBoard(Long id) {
+    public void deleteBoard(Long id) { //게시글 삭제
         boardRepository.deleteById(id);
 
     }
+
+   public int updateview(Long id){
+        return boardRepository.updateView(id);
+
+
+   }
+
+
 }
+
+
+
+
+
+
+
+
+
 
 
 

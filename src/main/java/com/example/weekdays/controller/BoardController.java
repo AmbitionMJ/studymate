@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.servlet.http.HttpSession;
+
 
 @Controller
 @AllArgsConstructor
@@ -49,7 +51,7 @@ public class BoardController {
 
         BoardDto boardDto = boardService.getPostDetail(id);
         model.addAttribute("boardDto", boardDto);
-
+        boardService.updateview(id);
 
         return "board/board-detail";
 
@@ -97,6 +99,8 @@ public class BoardController {
         return "redirect:/";
 
     }
+
+
 
 }
 
