@@ -5,15 +5,10 @@ import com.example.weekdays.component.UserAccount;
 import com.example.weekdays.component.validator.CheckNicknameValidator;
 import com.example.weekdays.component.validator.CheckPasswordValidator;
 import com.example.weekdays.component.validator.CheckSignupValidator;
-import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.dto.*;
 import com.example.weekdays.service.AccountService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -24,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
@@ -35,7 +29,6 @@ public class AccountController {
 
     private final AccountService accountService;
     private final CheckSignupValidator checkSignupValidator;
-    private final AuthenticationManager authenticationManager;
     private final CheckPasswordValidator checkPasswordValidator;
     private final CheckNicknameValidator checkNicknameValidator;
 
@@ -53,7 +46,7 @@ public class AccountController {
     }
 
     @InitBinder("nicknameDto")
-    public void nicknameBinder(WebDataBinder webDataBinder){
+    public void nicknameBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(checkNicknameValidator);
 
     }
@@ -98,9 +91,6 @@ public class AccountController {
     }
 
 
-
-
-
     @GetMapping("/check-email-token")
     public String checkEmailToken(String token, String email, Model model) {
 
@@ -133,7 +123,7 @@ public class AccountController {
     }
 
     @PostMapping("/check-email") //메일 재전송 처리
-    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model)  {
+    public String resendConfirmEmail(@AuthenticationPrincipal UserAccount userAccount, Model model) {
         if (!userAccount.getAccount().canSendConfirmEmail()) { //마지막으로 발행한 토큰 시간과 3분의 텀이 있는지 체크
             model.addAttribute("error", "인증 이메일은 3분에 한번만 전송할 수 있습니다.");
             model.addAttribute("email", userAccount.getAccount().getEmail());
@@ -151,22 +141,19 @@ public class AccountController {
     @GetMapping("/profile/{nickname}") //프로필 페이지
     public String profileForm(@PathVariable String nickname, Model model, @AuthenticationPrincipal UserAccount userAccount) {
 
-
         boolean isOwner = nickname.equals(userAccount.getAccount().getNickname());
 
-        if(!isOwner){
-            throw new IllegalArgumentException(nickname+"에 해당하는 사용자가 없습니다.");
+        if (!isOwner) {
+
+            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
 
         }
 
         model.addAttribute("userAccount", userAccount);
         model.addAttribute("isOwner", isOwner);
 
-
         return "account/profile";
     }
-
-
 
 
     @GetMapping("/password/update") //비밀번호 수정 페이지
@@ -202,7 +189,6 @@ public class AccountController {
         model.addAttribute(new ProfileDto(userAccount));
 
 
-
         return "account/profile-update";
 
 
@@ -226,29 +212,27 @@ public class AccountController {
 
 
     @GetMapping("/account/update") //닉네임 수정 페이지
-    public String accountUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model, Principal principal){
-        model.addAttribute("userAccount",userAccount);
-        model.addAttribute("nicknameDto",new NicknameDto());
+    public String accountUpdateForm(@AuthenticationPrincipal UserAccount userAccount, Model model, Principal principal) {
+        model.addAttribute("userAccount", userAccount);
+        model.addAttribute("nicknameDto", new NicknameDto());
         return "account/account-update";
 
     }
 
     @PostMapping("/account/update") //닉네임 수정 처리
-    public String accountUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid NicknameDto nicknameDto, Errors errors, Model model, RedirectAttributes attributes){
+    public String accountUpdate(@AuthenticationPrincipal UserAccount userAccount, @Valid NicknameDto nicknameDto, Errors errors, Model model, RedirectAttributes attributes) {
 
-        if(errors.hasErrors()){
+        if (errors.hasErrors()) {
             model.addAttribute("userAccount", userAccount);
             return "account/account-update";
 
         }
-        accountService.updateNickname(userAccount.getAccount(),nicknameDto.getNickname());
+        accountService.updateNickname(userAccount.getAccount(), nicknameDto.getNickname());
 
         attributes.addFlashAttribute("message", "수정이 완료되었습니다.");
         return "redirect:/account/update";
 
     }
-
-
 
 
     @GetMapping("/notifications") //알림 설정 페이지
@@ -287,7 +271,7 @@ public class AccountController {
     }
 
     @PostMapping("/find-password") //비밀번호 찾기 처리 (임시비밀번호 발급)
-    public String temporaryPassword (String email, Model model, RedirectAttributes attributes) {
+    public String temporaryPassword(String email, Model model, RedirectAttributes attributes) {
 
         String verification = accountService.resetPasswordByEmail(email); //검증을 수행합니다.
         if ("wrong.email".equals(verification)) {
@@ -304,7 +288,6 @@ public class AccountController {
         attributes.addFlashAttribute("message", "임시 비밀번호를 발급하였습니다. 로그인 후 반드시 비밀번호를 변경해주세요.");
         return "redirect:/find-password";
     }
-
 
 
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.servlet.http.HttpSession;
 
 
 @Controller
@@ -49,9 +48,8 @@ public class BoardController {
 
         }
 
-        BoardDto boardDto = boardService.getPostDetail(id);
+        BoardDto boardDto = boardService.getCompleteBoardDetail(id);
         model.addAttribute("boardDto", boardDto);
-        boardService.updateview(id);
 
         return "board/board-detail";
 
