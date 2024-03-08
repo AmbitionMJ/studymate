@@ -80,7 +80,8 @@
 
                                 <span th:text="${boardDto.writer}"> </span>
 
-                                <span th:text="${#temporals.format(boardDto.createdDate, '| yy. MM.dd HH:mm')}"></span>
+                                <span th:text="${#temporals.format(boardDto.createdDate, '| yyyy.MM.dd HH:mm:ss')} + ' | 조회 ' + ${boardDto.viewCount}"></span>
+
 
 
                                 <div class="x_content">

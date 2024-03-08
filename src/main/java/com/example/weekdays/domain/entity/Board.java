@@ -31,20 +31,27 @@ public class Board extends Time{
     @Basic(fetch = FetchType.EAGER)
     private String content; //글 내용
 
-    private Long count; //조회수
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private Long viewCount=0L; //조회수
 
 
     @Builder
-    public Board(String title, String content, Account writer, Long count){
+    public Board(String title, String content, Account writer, Long viewCount){
         //id는 데이터베이스에서 자동으로 생성되기 때문에 직접 설정할 필요는 없다.
         this.title =title;
         this.content=content;
         this.writer=writer;
-        this.count=count;
+        this.viewCount=0L;
 
     }
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
     }
+
+    public void incrementViewCount(){ //조회수 증가
+        this.viewCount++;
+
+    }
+
 }

@@ -25,8 +25,9 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final AccountRepository accountRepository;
+    private final HttpSession session;
 
-    public Long createBoard(BoardDto boardDto) { //글 등록
+    public void createBoard(BoardDto boardDto) { //글 등록
         Account writer = accountRepository.findByNickname(boardDto.getWriter());
 
         Board board = Board.builder()
@@ -36,24 +37,24 @@ public class BoardService {
                 .build();
         boardRepository.save(board);
 
-        return board.getId();
     }
 
 
-        public Page<BoardDto> getPostPage(Pageable pageable) { //글 목록 - 페이징 기능 구현
+    //Pageable : Spring Data 에서 제공하는 페이징 및 정렬을 위한 인터페이스
+    public Page<BoardDto> getPostPage(Pageable pageable) { //글 목록 - 페이징 기능 구현
         //한 페이지에 출력할 글의 개수를 10개로 지정합니다. 정렬은 id를 기준으로 내림차순으로 설정합니다.
         Pageable pageableWithSize10 = PageRequest.of(pageable.getPageNumber(), 10, Sort.by("id").descending());
 
         // 페이징된 글 목록을 조회하고, 각 글을 BoardDto로 변환하여 반환합니다.
-            return boardRepository.findAll(pageableWithSize10).map(board -> BoardDto.builder()
-                    .id(board.getId())
-                    .title(board.getTitle())
-                    .count(board.getCount())
-                    .writer(board.getWriter().getNickname())
-                    .content(board.getContent())
-                    .createdDate(board.getCreatedDate())
-                    .build());
-        }
+        return boardRepository.findAll(pageableWithSize10).map(board -> BoardDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .viewCount(board.getViewCount())
+                .writer(board.getWriter().getNickname())
+                .content(board.getContent())
+                .createdDate(board.getCreatedDate())
+                .build());
+    }
 
 
     public BoardDto getPostDetail(Long id) { //게시글 상세보기
@@ -69,13 +70,63 @@ public class BoardService {
                     // writer는 Board 엔터티에서 Account를 참조하고 있습니다.
                     .title(boardEntity.getTitle())
                     .content(boardEntity.getContent())
-                    .count(boardEntity.getCount())
+                    .viewCount(boardEntity.getViewCount())
                     .createdDate(boardEntity.getCreatedDate())
                     .build();
         } else {
             throw new EntityNotFoundException("게시글을 찾을 수 없습니다." + id);
         }
     }
+
+
+    private void BoardDetail(Long id) { // 게시글 상세보기 - 조회수 기능 추가
+
+        Optional<Board> board = boardRepository.findById(id); // ID를 사용하여 게시글을 조회합니다. 게시글이 존재하면 Optional로 감싸진 게시글 객체를 반환합니다.
+        if (board.isPresent()) { //isPresent() 메서드는 Optional 객체 안에 값이 존재하는지 여부를 반환합니다.
+            Board boardEntity = board.get(); // Optional 객체 안에 존재하는 게시글 객체를 가져옵니다.
+            boardEntity.incrementViewCount(); // 게시글의 조회수를 증가시킵니다. (incrementViewCount()는 엔터티에 정의된 메서드이며 조회수를 1 증가시키는 역할을 합니다.)
+            boardRepository.save(boardEntity); // 조회수 정보를 저장합니다.
+
+        } else {
+            throw new EntityNotFoundException("게시글을 찾을 수 없습니다." + id);
+        }
+
+
+    }
+
+    public BoardDto getCompleteBoardDetail(Long id) { // 게시글 상세페이지 controller 호출
+         if(!hasViewedPost(id)){ //해당 게시글이 이미 조회되었는지 확인합니다.
+             BoardDetail(id); //해당 게시글이 조회되지 않았으면 게시글의 조회수를 증가시킵니다.
+             addViewedPostToSession(id); //조회수를 증가시킨 후에 이미 조회되었음을 표시합니다.
+         }
+
+        return getPostDetail(id);
+    }
+
+
+    private boolean hasViewedPost(Long id) {  //세션에서 조회한 게시글인지 확인하는 메서드 markPostAsViewed에서 사용
+
+        Set<Long> viewedPosts = Optional.ofNullable((Set<Long>) session.getAttribute("viewedPosts")).orElse(Collections.emptySet()); // 속성을 가져오는 부분은 추후에 해당 속성을 업데이트 하거나 사용할 때 유용하게 활용될 수 있도록 준비하는 단계입니다.
+        //세션에서 viewedPosts 속성을 가져옵니다. Optional.ofNullable()은 가져온 속성이 null인지 확인하고, 그렇지 않은 경우에만 Optional 객체를 생성합니다. 가져온 속성을  set<Long> 타입으로 형변환 합니다.
+        //.orElase(Collections.emptySet()) 가져온 속성이 null인 경우에는 빈 Set을 반환합니다. null 체크를 통해서 NullPointException을 방지합니다.
+
+        return viewedPosts.contains(id); // 형변환된 조회한 게시글 집합에 지정된 ID가 포함되어 있는지 확인하고, 그 결과를 반환합니다.
+
+    }
+
+
+    private void addViewedPostToSession(Long id) {  //세션에 조회한 게시글을 추가하는 메서드
+    Set<Long> viewedPosts = (Set<Long>) session.getAttribute("viewedPosts"); // 세션에서 viewedPosts 속성을 가져옵니다.
+    if(viewedPosts == null) { // viewed 속성이 null 이라면
+        viewedPosts = new HashSet<>(); // 새로운 HashSet을 생성하여 조회한 게시글의 ID를 관리할 준비를 합니다.
+
+    }
+    viewedPosts.add(id); // 조회한 게시글의 ID를 viewedPosts 속성에 추가합니다.
+    session.setAttribute("viewedPosts", viewedPosts); // 세션에 있는 viewedPosts 속성을 업데이트 합니다.
+}
+
+
+
 
     public void BoardUpdate(Long id, BoardDto boardDto) { //게시글 업데이트
 
@@ -92,12 +143,6 @@ public class BoardService {
         boardRepository.deleteById(id);
 
     }
-
-   public int updateview(Long id){
-        return boardRepository.updateView(id);
-
-
-   }
 
 
 }

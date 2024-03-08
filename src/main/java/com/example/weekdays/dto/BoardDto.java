@@ -19,7 +19,7 @@ public class BoardDto {
     private String title;
     private String writer;
     private String content;
-    private Long count;
+    private Long viewCount;
     private LocalDateTime createdDate; // 작성일자
     private LocalDateTime modifiedDate; //수정일자
 
@@ -30,19 +30,19 @@ public class BoardDto {
                 .title(title)
 //                .writer(writer)  // service 레이어에서 별도로 등록 해줍니다.
                 .content(content)
-                .count(count)
+                .viewCount(viewCount)
                 .build();
 
     }
 
     @Builder
-    public BoardDto(Long id,String title, String content, String writer, Long count, LocalDateTime createdDate,LocalDateTime modifiedDate ){
+    public BoardDto(Long id,String title, String content, String writer, Long viewCount, LocalDateTime createdDate,LocalDateTime modifiedDate ){
         //id는 데이터베이스에서 자동으로 생성되기 때문에 직접 설정할 필요는 없다.
         this.id=id;
         this.title =title;
         this.content=content;
         this.writer=writer;
-        this.count=count;
+        this.viewCount=viewCount;
         this.createdDate=createdDate;
         this.modifiedDate=modifiedDate;
 

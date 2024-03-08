@@ -100,10 +100,10 @@
                                                                 <span th:text="${board.writer}"></span>
                                                             </td>
                                                             <td>
-                                                                <span th:text="${board.count}"></span>
+                                                                <span th:text="${board.viewCount}"></span>
                                                             </td>
                                                             <td>
-                                                                <span th:text="${#temporals.format(board.createdDate, 'yyyy.MM.dd.mm.ss')}"></span>
+                                                                <span th:text="${#temporals.format(board.createdDate, 'yyyy.MM.dd HH:mm:ss')}"></span>
                                                             </td>
                                                         </tr>
                                                         </tbody>
@@ -167,6 +167,7 @@
 
 <!-- Custom Theme Scripts -->
 <script th:src="@{/build/js/custom.min.js}"></script>
+
 
 </body>
 </html>
