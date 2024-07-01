@@ -44,17 +44,51 @@ public class BoardService {
     public Page<BoardDto> getPostPage(Pageable pageable) { //글 목록 - 페이징 기능 구현
         //한 페이지에 출력할 글의 개수를 10개로 지정합니다. 정렬은 id를 기준으로 내림차순으로 설정합니다.
         Pageable pageableWithSize10 = PageRequest.of(pageable.getPageNumber(), 10, Sort.by("id").descending());
+        //PageRequest.of 메서드를 이용해서 페이지 요청 객체를 만듭니다.
 
-        // 페이징된 글 목록을 조회하고, 각 글을 BoardDto로 변환하여 반환합니다.
-        return boardRepository.findAll(pageableWithSize10).map(board -> BoardDto.builder()
+        return boardRepository.findAll(pageableWithSize10).map(this::converToDto);
+    }
+
+    public Page searchPosts(String keyword, Pageable pageable, String option) { //검색어가 주어졌을때 메인화면에 게시글 출력
+        //한 페이지에 출력할 글의 개수를 10개로 지정합니다. 정렬은 id를 기준으로 내림차순으로 설정합니다.
+        Pageable pageableWithSize10 = PageRequest.of(pageable.getPageNumber(), 10, Sort.by("id").descending());
+
+        Page<Board> boardDtoPage; //페이징 처리된 결과를 나타내는 객체 //Board 객체를 포함하는 페이지네이션된 결과를 나타내는 Page 타입의 객체
+
+        switch (option) {
+            case "title":
+                boardDtoPage = boardRepository.findByTitleContainingIgnoreCase(keyword, pageableWithSize10);
+                break;
+            case "content":
+                boardDtoPage = boardRepository.findByContentContainingIgnoreCase(keyword, pageableWithSize10);
+                break;
+            case "writer":
+                boardDtoPage = boardRepository.findByWriterContainingIgnoreCase(keyword, pageableWithSize10);
+                break;
+            default:
+                boardDtoPage = boardRepository.findByTitleOrContentContainingIgnoreCase(keyword, pageableWithSize10);
+                break;
+        }
+
+        return boardDtoPage.map(this::converToDto);
+
+
+    }
+
+    private BoardDto converToDto(Board board){ //Board 엔터티 객체를 BoardDto 객체로 변환
+        return BoardDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .viewCount(board.getViewCount())
                 .writer(board.getWriter().getNickname())
                 .content(board.getContent())
                 .createdDate(board.getCreatedDate())
-                .build());
+                .build();
+
+
     }
+
+
 
 
     public BoardDto getPostDetail(Long id) { //게시글 상세보기
@@ -95,16 +129,16 @@ public class BoardService {
     }
 
     public BoardDto getCompleteBoardDetail(Long id) { // 게시글 상세페이지 controller 호출
-         if(!hasViewedPost(id)){ //해당 게시글이 이미 조회되었는지 확인합니다.
-             BoardDetail(id); //해당 게시글이 조회되지 않았으면 게시글의 조회수를 증가시킵니다.
-             addViewedPostToSession(id); //조회수를 증가시킨 후에 이미 조회되었음을 표시합니다.
-         }
+        if (!hasViewedPost(id)) { //해당 게시글이 이미 조회되었는지 확인합니다.
+            BoardDetail(id); //해당 게시글이 조회되지 않았으면 게시글의 조회수를 증가시킵니다.
+            addViewedPostToSession(id); //조회된 게시물 ID를 세션에 기록하여 중복 조회를 방지합니다.
+        }
 
         return getPostDetail(id);
     }
 
 
-    private boolean hasViewedPost(Long id) {  //세션에서 조회한 게시글인지 확인하는 메서드 markPostAsViewed에서 사용
+    private boolean hasViewedPost(Long id) {  //세션에서 조회한 게시글인지 확인하는 메서드 addViewedPostToSession에서 사용
 
         Set<Long> viewedPosts = Optional.ofNullable((Set<Long>) session.getAttribute("viewedPosts")).orElse(Collections.emptySet()); // 속성을 가져오는 부분은 추후에 해당 속성을 업데이트 하거나 사용할 때 유용하게 활용될 수 있도록 준비하는 단계입니다.
         //세션에서 viewedPosts 속성을 가져옵니다. Optional.ofNullable()은 가져온 속성이 null인지 확인하고, 그렇지 않은 경우에만 Optional 객체를 생성합니다. 가져온 속성을  set<Long> 타입으로 형변환 합니다.
@@ -116,16 +150,14 @@ public class BoardService {
 
 
     private void addViewedPostToSession(Long id) {  //세션에 조회한 게시글을 추가하는 메서드
-    Set<Long> viewedPosts = (Set<Long>) session.getAttribute("viewedPosts"); // 세션에서 viewedPosts 속성을 가져옵니다.
-    if(viewedPosts == null) { // viewed 속성이 null 이라면
-        viewedPosts = new HashSet<>(); // 새로운 HashSet을 생성하여 조회한 게시글의 ID를 관리할 준비를 합니다.
+        Set<Long> viewedPosts = (Set<Long>) session.getAttribute("viewedPosts"); // 세션에서 viewedPosts 속성을 가져옵니다.
+        if (viewedPosts == null) { // viewed 속성이 null 이라면
+            viewedPosts = new HashSet<>(); // 새로운 HashSet을 생성하여 조회한 게시글의 ID를 관리할 준비를 합니다.
 
+        }
+        viewedPosts.add(id); // 조회한 게시글의 ID를 viewedPosts 속성에 추가합니다.
+        session.setAttribute("viewedPosts", viewedPosts); // 세션에 있는 viewedPosts 속성을 업데이트 합니다.
     }
-    viewedPosts.add(id); // 조회한 게시글의 ID를 viewedPosts 속성에 추가합니다.
-    session.setAttribute("viewedPosts", viewedPosts); // 세션에 있는 viewedPosts 속성을 업데이트 합니다.
-}
-
-
 
 
     public void BoardUpdate(Long id, BoardDto boardDto) { //게시글 업데이트

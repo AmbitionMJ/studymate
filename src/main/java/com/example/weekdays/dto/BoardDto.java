@@ -3,10 +3,7 @@ package com.example.weekdays.dto;
 
 import com.example.weekdays.domain.entity.Account;
 import com.example.weekdays.domain.entity.Board;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +19,16 @@ public class BoardDto {
     private Long viewCount;
     private LocalDateTime createdDate; // 작성일자
     private LocalDateTime modifiedDate; //수정일자
+
+ public BoardDto(Board board) {
+            this.id = board.getId();
+            this.title = board.getTitle();
+            this.writer=board.getWriter().getNickname();
+            this.viewCount = board.getViewCount();
+            this.createdDate = board.getCreatedDate();
+        }
+
+
 
 
     public Board toEntity() {
